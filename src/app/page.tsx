@@ -17,30 +17,17 @@ export default async function HomePage() {
   if (!user) return null;
 
   return (
-    <main className="container mx-auto py-12">
+    <main className="container mx-auto py-12 space-y-8">
+      <h1 className="text-4xl font-bold">Items For Sale</h1>
 
-      {session ? <SignOut /> : <SignIn />}
-
-      {session?.user?.name}
-
-      <form
-        action={async (formdata: FormData) => {
-          'use server';
-
-          await database.insert(items).values({
-            name: formdata.get('name') as string,
-            userId: session?.user?.id!,
-          });
-          revalidatePath('/');
-        }}
-      >
-        <Input name="name" placeholder="Name your item" />
-        <Button type="submit">Post item</Button>
-      </form>
-
-      {allitems.map((item) => (
-        <div key={item.id}>{item.name}</div>
-      ))}
+      <div className="grid grid-cols-4 gap-4">
+        {allitems.map((item) => (
+          <div key={item.id} className="border p-8 rounded-xl">
+            {item.name}
+            starting price: ${(item.startingPrice / 100).toFixed(2)}
+          </div>
+        ))}
+      </div>
     </main>
   );
 }

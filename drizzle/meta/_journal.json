@@ -15,6 +15,13 @@
       "when": 1761472510297,
       "tag": "0001_famous_spot",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761981655324,
+      "tag": "0002_hard_marvex",
+      "breakpoints": true
     }
   ]
 }
