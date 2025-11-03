@@ -5,8 +5,25 @@ import { database } from '@/db/database';
 import { items } from '@/db/schema';
 import { auth } from '../../../../auth';
 import { redirect } from 'next/navigation';
+import { getSignedUrlForS3Object, getSignedReadUrlForS3Object } from '@/lib/s3';
 
-export async function createItemActions(formdata: FormData) {
+export async function getImageUrlAction(fileKey: string) {
+  return await getSignedReadUrlForS3Object(fileKey);
+}
+
+export async function createUploadUrlAction(key: string, type: string) {
+  return await getSignedUrlForS3Object(key, type);
+}
+
+export async function createItemActions({
+  fileKey,
+  name,
+  startingPrice,
+}: {
+  fileKey: string;
+  name: string;
+  startingPrice: number;
+}) {
   const session = await auth();
 
   if (!session) {
@@ -18,13 +35,10 @@ export async function createItemActions(formdata: FormData) {
     throw new Error('Unauthorized');
   }
 
-  const startingPrice = formdata.get('startingPrice') as string;
-
-  const priceAsCents = Math.floor(parseFloat(startingPrice) * 100);
-
   await database?.insert(items).values({
-    name: formdata.get('name') as string,
-    startingPrice: priceAsCents,
+    name,
+    startingPrice,
+    fileKey,
     userId: user.id,
   });
 
