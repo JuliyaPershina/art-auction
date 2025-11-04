@@ -6,10 +6,12 @@ import Link from 'next/link';
 
 export async function Header() {
   const session = await auth();
+
   return (
     <div className="bg-gray-100">
       <div className="container flex justify-between items-center">
         <div className="flex items-center gap-12 py-4 px-4">
+          {/* Logo */}
           <Link href="/" className="flex items-center gap-2 hover:underline">
             <Image
               src="/main-logo.jpg"
@@ -18,21 +20,34 @@ export async function Header() {
               height={50}
               className="w-[50px] h-[50px] object-cover"
             />
-            BidBuddy.com
+            <span className="font-semibold text-lg">BidBuddy.com</span>
           </Link>
 
-          <div>
-            <Link
-              href="/items/create "
-              className="flexitems-center gap-2 hover:underline"
-            >
-              Auction an Item
+          {/* Навігація */}
+          <div className="flex items-center gap-8">
+            <Link href="/" className="hover:underline">
+              All Auctions
             </Link>
+
+            {/* Ці два посилання бачать тільки авторизовані */}
+            {session?.user && (
+              <>
+                <Link href="/items/create" className="hover:underline">
+                  Create Auction
+                </Link>
+                <Link href="/auctions" className="hover:underline">
+                  My Auctions
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div>{session?.user?.name}</div>
+        {/* Правий блок: ім’я + кнопка */}
+        <div className="flex items-center gap-3 px-4">
+          {session?.user && (
+            <div className="text-gray-700 font-medium">{session.user.name}</div>
+          )}
           <div>{session ? <SignOut /> : <SignIn />}</div>
         </div>
       </div>

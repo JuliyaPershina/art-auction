@@ -3,13 +3,6 @@
   "dialect": "postgresql",
   "entries": [
     {
-      "idx": 0,
-      "version": "7",
-      "when": 1761471386616,
-      "tag": "0000_young_genesis",
-      "breakpoints": true
-    },
-    {
       "idx": 1,
       "version": "7",
       "when": 1761472510297,
