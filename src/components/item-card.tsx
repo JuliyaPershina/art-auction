@@ -4,12 +4,15 @@ import Image from 'next/image';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { formatToDollar } from '@/util/currency';
+import { format } from 'date-fns';
+import { isBidOver } from '@/util/bids';
 
 interface Item {
   id: number;
   name: string;
   fileKey: string;
   startingPrice: number;
+  endDate: Date;
 }
 
 interface ItemCardProps {
@@ -17,6 +20,10 @@ interface ItemCardProps {
   imageUrl?: string;
   index: number;
 }
+
+// function isBidOver(item: Item) {
+//   return item.endDate < new Date();
+// }
 
 export default function ItemCard({ item, imageUrl, index }: ItemCardProps) {
   return (
@@ -68,8 +75,23 @@ export default function ItemCard({ item, imageUrl, index }: ItemCardProps) {
         <div className="text-gray-600 dark:text-gray-400 mt-1">
           Starting price: ${formatToDollar(item.startingPrice)}
         </div>
-        <Button asChild>
-          <Link href={`/items/${item.id}`}>Place Bid</Link>
+        {isBidOver(item) ? (
+          <div className="text-gray-600 dark:text-gray-400 mt-1">
+            Bidding is Over
+          </div>
+        ) : (
+          <div className="text-gray-600 dark:text-gray-400 mt-1">
+            Ends On:{' '}
+            {item.endDate
+              ? format(new Date(item.endDate), 'eeee, MMM d, yyyy')
+              : 'Unknown'}
+          </div>
+        )}
+
+        <Button asChild variant={isBidOver(item) ? 'outline' : 'default'}>
+          <Link href={`/items/${item.id}`}>
+            {isBidOver(item) ? 'View Bid' : 'Place a Bid'}
+          </Link>
         </Button>
       </div>
     </div>

@@ -7,6 +7,10 @@ import { formatToDollar } from '@/util/currency';
 import { createBidAction } from './actions';
 import { getBidsForItem } from '@/data-access/bids';
 import { getItem } from '@/data-access/items';
+import { auth } from '../../../../auth';
+
+import { Badge } from '@/components/ui/badge';
+import { isBidOver } from '@/util/bids';
 
 function formatTimestamp(timestamp: Date) {
   return formatDistance(timestamp, new Date(), {
@@ -19,8 +23,10 @@ export default async function ItemPage({
 }: {
   params: { itemId: string };
 }) {
-  
-    const item = await getItem(parseInt(itemId));
+  const session = await auth();
+  const userId = session?.user?.id ?? null;
+  const item = await getItem(parseInt(itemId));
+
 
   if (!item) {
     return (
@@ -57,6 +63,11 @@ export default async function ItemPage({
 
   const hasBids = allBids.length > 0;
 
+  const isBiddingOver = isBidOver(item);
+  console.log('IS BIDDING OVER:', isBiddingOver);
+
+  const canPlaceBid = session && item.userId !== session.user.id && !isBiddingOver;
+
   return (
     <main className="space-y-8 ">
       <div className="flex flex-wrap gap-8">
@@ -65,6 +76,8 @@ export default async function ItemPage({
             <span className="font-normal">Auction for:</span> <br />
             {item.name}
           </h1>
+          {isBiddingOver && (<Badge className='w-fit' variant={"destructive"}>Bidding over</Badge>)}
+            
 
           {/* 🖼 Фото айтема */}
           <div className="flex flex-col gap-4">
@@ -97,9 +110,11 @@ export default async function ItemPage({
               <h2 className="text-3xl font-semibold self-start text-left mb-20">
                 Current Bids:
               </h2>
-              <form action={createBidAction.bind(null, item.id)}>
-                <Button>Place a Bid</Button>
-              </form>
+              {canPlaceBid && (
+                <form action={createBidAction.bind(null, item.id)}>
+                  <Button>Place a Bid</Button>
+                </form>
+              )}
             </div>
             <ul className="flex flex-col gap-3">
               {allBids.map((bid) => (
@@ -122,14 +137,20 @@ export default async function ItemPage({
           </div>
         ) : (
           <div className="flex-1 flex flex-col text-center gap-8 items-center">
-            <h2 className="text-3xl font-semibold self-start text-left mb-20">
-              Current Bids:
-            </h2>
+            <div>
+              <h2 className="text-3xl font-semibold self-start text-left mb-20">
+                Current Bids:
+              </h2>
+              
+
+              {canPlaceBid && (
+                <form action={createBidAction.bind(null, item.id)}>
+                  <Button>Place a Bid</Button>
+                </form>
+              )}
+            </div>
             <Image src="/pacage.svg" width={200} height={200} alt="Pacage" />
             <h2 className="text-2xl font-semibold">No Bids yet</h2>
-            <form action={createBidAction.bind(null, item.id)}>
-              <Button>Place a Bid</Button>
-            </form>
           </div>
         )}
       </div>

@@ -8,8 +8,11 @@ import {
   getImageUrlAction,
 } from './actions';
 import { pageTitleStyles } from '@/styles';
+import { DatePickerDemo } from '@/components/ui/date-picker';
+import { useState } from 'react';
 
 export default function CreatePage() {
+  const [date, setDate] = useState<Date | undefined>();
 
   return (
     <main className="space-y-8">
@@ -19,6 +22,9 @@ export default function CreatePage() {
         className="flex flex-col border p-8 raunded-xl space-y-4 max-w-lg"
         onSubmit={async (e) => {
           e.preventDefault();
+
+          if (!date) { return; }
+
           const form = e.currentTarget as HTMLFormElement;
           const formData = new FormData(form);
           const file = formData.get('file') as File;
@@ -43,6 +49,7 @@ export default function CreatePage() {
             fileKey: file.name,
             name,
             startingPrice: startingPriceInCents,
+            endDate: date,
           });
         }}
       >
@@ -61,6 +68,7 @@ export default function CreatePage() {
           placeholder="What to start your auction at?"
         />
         <Input type="file" name="file" />
+        <DatePickerDemo date={date} setDate={setDate}  />
         <Button className="self-end" type="submit">
           Post item
         </Button>
