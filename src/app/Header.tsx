@@ -46,7 +46,7 @@ export function Header() {
             >
               All Auctions
             </Link>
-            {user && (
+            {user && user.role === 'admin' && (
               <>
                 <Link
                   href="/items/create"
@@ -54,6 +54,10 @@ export function Header() {
                 >
                   Create Auction
                 </Link>
+              </>
+            )}
+            {user && (
+              <>
                 <Link
                   href="/auctions"
                   className="hover:underline text-gray-700 dark:text-gray-200"

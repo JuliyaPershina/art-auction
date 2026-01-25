@@ -8,6 +8,7 @@ interface Item {
   name: string;
   fileKey: string;
   startingPrice: number;
+  endDate: Date;
 }
 
 export default function ItemList({ items }: { items: Item[] }) {

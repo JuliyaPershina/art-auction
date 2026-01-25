@@ -28,8 +28,8 @@ export async function createItemActions({
 }) {
   const session = await auth();
 
-  if (!session) {
-    throw new Error('Unauthorized');
+  if (!session || session.user.role !== 'admin') {
+    throw new Error('Forbidden');
   }
 
   const user = session.user;

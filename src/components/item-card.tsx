@@ -21,10 +21,6 @@ interface ItemCardProps {
   index: number;
 }
 
-// function isBidOver(item: Item) {
-//   return item.endDate < new Date();
-// }
-
 export default function ItemCard({ item, imageUrl, index }: ItemCardProps) {
   return (
     <div
