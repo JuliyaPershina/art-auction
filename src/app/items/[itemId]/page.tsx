@@ -19,14 +19,21 @@ function formatTimestamp(timestamp: Date) {
 }
 
 export default async function ItemPage({
-  params: { itemId },
+  params,
 }: {
   params: { itemId: string };
 }) {
+  const itemId = params.itemId;
   const session = await auth();
   const userId = session?.user?.id ?? null;
-  const item = await getItem(parseInt(itemId));
+  // const item = await getItem(parseInt(itemId));
 
+  const id = Number(itemId);
+  if (Number.isNaN(id)) {
+    return <p>Invalid item id</p>;
+  }
+
+  const item = await getItem(id);
 
   if (!item) {
     return (
@@ -45,12 +52,7 @@ export default async function ItemPage({
     );
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/images/${item.fileKey}`, {
-    cache: 'no-store',
-  });
-  const data = await res.json();
-  const imageUrl = data.url;
+  const imageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${item.fileKey}`;
 
   interface Bid {
     id: number;
@@ -66,7 +68,8 @@ export default async function ItemPage({
   const isBiddingOver = isBidOver(item);
   console.log('IS BIDDING OVER:', isBiddingOver);
 
-  const canPlaceBid = session && item.userId !== session.user.id && !isBiddingOver;
+  const canPlaceBid =
+    session && item.userId !== session.user.id && !isBiddingOver;
 
   return (
     <main className="space-y-8 ">
@@ -76,8 +79,11 @@ export default async function ItemPage({
             <span className="font-normal">Auction for:</span> <br />
             {item.name}
           </h1>
-          {isBiddingOver && (<Badge className='w-fit' variant={"destructive"}>Bidding over</Badge>)}
-            
+          {isBiddingOver && (
+            <Badge className="w-fit" variant={'destructive'}>
+              Bidding over
+            </Badge>
+          )}
 
           {/* 🖼 Фото айтема */}
           <div className="flex flex-col gap-4">
@@ -86,7 +92,7 @@ export default async function ItemPage({
               alt={item.name}
               width={200}
               height={200}
-              className="w-[300] h-[300] rounded-xl shadow-lg object-cover"
+              className="w-[300px] h-[300px] rounded-xl shadow-lg object-cover"
               unoptimized
             />
 
@@ -141,7 +147,6 @@ export default async function ItemPage({
               <h2 className="text-3xl font-semibold self-start text-left mb-20">
                 Current Bids:
               </h2>
-              
 
               {canPlaceBid && (
                 <form action={createBidAction.bind(null, item.id)}>

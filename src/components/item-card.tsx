@@ -84,6 +84,27 @@ export default function ItemCard({ item, imageUrl, index }: ItemCardProps) {
           </div>
         )}
 
+        <Button
+          variant="destructive"
+          onClick={async () => {
+            if (!confirm('Are you sure you want to delete this item?')) return;
+
+            const res = await fetch(`/api/items/${item.id}`, {
+              method: 'DELETE',
+            });
+
+            if (res.ok) {
+              alert('Item deleted');
+              window.location.href = '/'; // переходимо на головну
+            } else {
+              const data = await res.json();
+              alert(`Error: ${data.error}`);
+            }
+          }}
+        >
+          Delete Item
+        </Button>
+
         <Button asChild variant={isBidOver(item) ? 'outline' : 'default'}>
           <Link href={`/items/${item.id}`}>
             {isBidOver(item) ? 'View Bid' : 'Place a Bid'}

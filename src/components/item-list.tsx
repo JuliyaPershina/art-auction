@@ -1,36 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import ItemCard from './item-card';
 
 interface Item {
   id: number;
   name: string;
-  fileKey: string;
+  fileKey: string; // це public_id з Cloudinary
   startingPrice: number;
   endDate: Date;
 }
 
 export default function ItemList({ items }: { items: Item[] }) {
-  const [urls, setUrls] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    async function fetchUrls() {
-      const result: Record<string, string> = {};
-      for (const item of items) {
-        try {
-          const res = await fetch(`/api/images/${item.fileKey}`);
-          const data = await res.json();
-          result[item.id] = data.url;
-        } catch (err) {
-          console.error(`Error fetching image for ${item.fileKey}:`, err);
-        }
-      }
-      setUrls(result);
-    }
-
-    fetchUrls();
-  }, [items]);
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const folder = 'art-auction'; // твоя папка для цього проекту
 
   return (
     <div
@@ -44,14 +26,19 @@ export default function ItemList({ items }: { items: Item[] }) {
         auto-rows-fr
       "
     >
-      {items.map((item, index) => (
-        <ItemCard
-          key={item.id}
-          item={item}
-          imageUrl={urls[item.id]}
-          index={index}
-        />
-      ))}
+      {items.map((item, index) => {
+        const imageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${item.fileKey}`;
+
+        return (
+          <ItemCard
+            key={item.id}
+            item={item}
+            imageUrl={imageUrl}
+            index={index}
+          />
+        );
+      })}
     </div>
   );
 }
+
