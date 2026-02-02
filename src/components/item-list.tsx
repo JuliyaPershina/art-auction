@@ -1,5 +1,6 @@
 'use client';
 
+import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
 import ItemCard from './item-card';
 
 interface Item {
@@ -27,7 +28,8 @@ export default function ItemList({ items }: { items: Item[] }) {
       "
     >
       {items.map((item, index) => {
-        const imageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${item.fileKey}`;
+        // const imageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${item.fileKey}`;
+        const imageUrl = getCloudinaryImageUrl(item.fileKey);
 
         return (
           <ItemCard

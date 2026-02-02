@@ -11,6 +11,7 @@ import { auth } from '../../../../auth';
 
 import { Badge } from '@/components/ui/badge';
 import { isBidOver } from '@/util/bids';
+import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
 
 function formatTimestamp(timestamp: Date) {
   return formatDistance(timestamp, new Date(), {
@@ -19,14 +20,11 @@ function formatTimestamp(timestamp: Date) {
 }
 
 export default async function ItemPage({
-  params,
+  params: { itemId },
 }: {
   params: { itemId: string };
 }) {
-  const itemId = params.itemId;
   const session = await auth();
-  const userId = session?.user?.id ?? null;
-  // const item = await getItem(parseInt(itemId));
 
   const id = Number(itemId);
   if (Number.isNaN(id)) {
@@ -52,7 +50,8 @@ export default async function ItemPage({
     );
   }
 
-  const imageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${item.fileKey}`;
+  // const imageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${item.fileKey}`;
+  const imageUrl = getCloudinaryImageUrl(item.fileKey);
 
   interface Bid {
     id: number;
