@@ -15,10 +15,10 @@ import { formatToDollar } from '@/util/currency';
 export function Header() {
   const [isVisible, setIsVisible] = useState(false);
   const notifButtonRef = useRef<HTMLButtonElement | null>(null);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const user = session?.user;
-  const userId = user?.id;
+  // const userId = user?.id;
   // console.log("session:", session);
 
   return (
