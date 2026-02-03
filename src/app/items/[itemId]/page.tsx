@@ -50,7 +50,6 @@ export default async function ItemPage({
     );
   }
 
-  // const imageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${item.fileKey}`;
   const imageUrl = getCloudinaryImageUrl(item.fileKey);
 
   interface Bid {

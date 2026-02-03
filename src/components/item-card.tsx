@@ -6,83 +6,58 @@ import Link from 'next/link';
 import { formatToDollar } from '@/util/currency';
 import { format } from 'date-fns';
 import { isBidOver } from '@/util/bids';
+import { useRouter } from 'next/navigation';
+import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
 
 interface Item {
   id: number;
   name: string;
   fileKey: string;
   startingPrice: number;
-  endDate: Date;
+  endDate: Date // ✅
 }
 
 interface ItemCardProps {
   item: Item;
-  imageUrl?: string;
   index: number;
 }
 
-export default function ItemCard({ item, imageUrl, index }: ItemCardProps) {
+export default function ItemCard({ item, index }: ItemCardProps) {
+  const router = useRouter();
+
+  const imageUrl = getCloudinaryImageUrl(item.fileKey);
+
+  const biddingOver = isBidOver({
+    ...item,
+    endDate: new Date(item.endDate),
+  });
+
   return (
-    <div
-      className="
-        border 
-        rounded-xl 
-        p-6 
-        flex 
-        flex-col 
-        justify-between 
-        transition-shadow 
-        hover:shadow-lg 
-        bg-white 
-        dark:bg-gray-800
-      "
-    >
-      {/* Фото з hover-зумом */}
+    <div className="border rounded-xl p-6 flex flex-col justify-between bg-white dark:bg-gray-800">
       <div className="w-full aspect-square overflow-hidden rounded-lg mb-4">
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={item.name}
-            width={400}
-            height={400}
-            className="
-              object-cover 
-              w-full 
-              h-full 
-              transition-transform 
-              duration-300 
-              hover:scale-110
-            "
-            unoptimized
-            priority={index === 0}
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
-            Loading image...
-          </div>
-        )}
+        <Image
+          src={imageUrl}
+          alt={item.name}
+          width={400}
+          height={400}
+          className="object-cover w-full h-full transition-transform hover:scale-110"
+          unoptimized
+          priority={index === 0}
+        />
       </div>
 
-      {/* Інформація */}
-      <div className="flex flex-col grow justify-between space-y-4">
-        <div className="font-semibold text-lg text-gray-900 dark:text-white">
-          {item.name}
-        </div>
-        <div className="text-gray-600 dark:text-gray-400 mt-1">
+      <div className="flex flex-col grow space-y-4">
+        <div className="font-semibold text-lg">{item.name}</div>
+
+        <div className="text-gray-600">
           Starting price: ${formatToDollar(item.startingPrice)}
         </div>
-        {isBidOver(item) ? (
-          <div className="text-gray-600 dark:text-gray-400 mt-1">
-            Bidding is Over
-          </div>
-        ) : (
-          <div className="text-gray-600 dark:text-gray-400 mt-1">
-            Ends On:{' '}
-            {item.endDate
-              ? format(new Date(item.endDate), 'eeee, MMM d, yyyy')
-              : 'Unknown'}
-          </div>
-        )}
+
+        <div className="text-gray-600">
+          {biddingOver
+            ? 'Bidding is Over'
+            : `Ends on: ${format(new Date(item.endDate), 'eeee, MMM d, yyyy')}`}
+        </div>
 
         <Button
           variant="destructive"
@@ -94,23 +69,24 @@ export default function ItemCard({ item, imageUrl, index }: ItemCardProps) {
             });
 
             if (res.ok) {
-              alert('Item deleted');
-              window.location.href = '/'; // переходимо на головну
+              router.refresh();
+              router.push('/');
             } else {
               const data = await res.json();
-              alert(`Error: ${data.error}`);
+              alert(data.error);
             }
           }}
         >
           Delete Item
         </Button>
 
-        <Button asChild variant={isBidOver(item) ? 'outline' : 'default'}>
+        <Button asChild variant={biddingOver ? 'outline' : 'default'}>
           <Link href={`/items/${item.id}`}>
-            {isBidOver(item) ? 'View Bid' : 'Place a Bid'}
+            {biddingOver ? 'View Bid' : 'Place a Bid'}
           </Link>
         </Button>
       </div>
     </div>
   );
 }
+

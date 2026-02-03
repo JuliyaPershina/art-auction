@@ -6,10 +6,6 @@ import { eq } from 'drizzle-orm';
 import { EmptyState } from './empty-state';
 import { pageTitleStyles } from '@/styles';
 
-function getImageUrl(fileKey: string) {
-  return;
-}
-
 export default async function MyAuctionPage() {
   const session = await auth();
   if (!session || !session.user) {
