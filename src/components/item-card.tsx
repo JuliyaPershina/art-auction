@@ -8,6 +8,9 @@ import { format } from 'date-fns';
 import { isBidOver } from '@/util/bids';
 import { useRouter } from 'next/navigation';
 import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
+import { useSession } from 'next-auth/react';
+
+
 
 interface Item {
   id: number;
@@ -31,6 +34,8 @@ export default function ItemCard({ item, index }: ItemCardProps) {
     ...item,
     endDate: new Date(item.endDate),
   });
+  const { data: session } = useSession();
+  const user = session?.user;
 
   return (
     <div className="border rounded-xl p-6 flex flex-col justify-between bg-white dark:bg-gray-800">
@@ -59,26 +64,29 @@ export default function ItemCard({ item, index }: ItemCardProps) {
             : `Ends on: ${format(new Date(item.endDate), 'eeee, MMM d, yyyy')}`}
         </div>
 
-        <Button
-          variant="destructive"
-          onClick={async () => {
-            if (!confirm('Are you sure you want to delete this item?')) return;
+        {user && user.role === 'admin' && (
+          <Button
+            variant="destructive"
+            onClick={async () => {
+              if (!confirm('Are you sure you want to delete this item?'))
+                return;
 
-            const res = await fetch(`/api/items/${item.id}`, {
-              method: 'DELETE',
-            });
+              const res = await fetch(`/api/items/${item.id}`, {
+                method: 'DELETE',
+              });
 
-            if (res.ok) {
-              router.refresh();
-              router.push('/');
-            } else {
-              const data = await res.json();
-              alert(data.error);
-            }
-          }}
-        >
-          Delete Item
-        </Button>
+              if (res.ok) {
+                router.refresh();
+                router.push('/');
+              } else {
+                const data = await res.json();
+                alert(data.error);
+              }
+            }}
+          >
+            Delete Item
+          </Button>
+        )}
 
         <Button asChild variant={biddingOver ? 'outline' : 'default'}>
           <Link href={`/items/${item.id}`}>

@@ -1,30 +1,23 @@
 import { database } from '@/db/database';
 import { auth } from '../../auth';
-import ItemList from '@/components/item-list';
-import { pageTitleStyles } from '@/styles';
+import PictureGallery from '@/components/PictureGallery';
+import CreatePictureToggle from '@/components/CreatePictureToggle';
 
 export default async function HomePage() {
   const session = await auth(); // може бути null
-  const allitems = await database.query.items.findMany();
+  const allPictures = await database.query.pictures.findMany();
+
+  const isAdmin = session?.user.role === 'admin';
 
   return (
-    <main className="space-y-8">
-      <h1 className={pageTitleStyles}>Items For Sale</h1>
+    <main className="space-y-8 p-4">
+      <h1 className="text-2xl font-bold text-center">
+        Hello! I am Anikó Kocsis
+      </h1>
 
-      {/* показуємо список усім */}
-      <ItemList items={allitems} />
+      {isAdmin && <CreatePictureToggle />}
 
-      {/* додаткові функції — лише для авторизованих */}
-      {session?.user ? (
-        <div className="text-right">
-          <p className="text-gray-600">Signed in as {session.user.name}</p>
-        </div>
-      ) : (
-        <div className="text-gray-500 italic text-center mt-6">
-          Sign in to post your own item or place a bid.
-        </div>
-      )}
+      <PictureGallery pictures={allPictures} isAdmin={isAdmin} />
     </main>
   );
 }
-

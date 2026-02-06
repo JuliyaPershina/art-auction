@@ -35,17 +35,23 @@ export function Header() {
               className="w-[50px] h-[50px] object-cover rounded-full"
             />
             <span className="font-semibold text-lg text-gray-800 dark:text-gray-100">
-              BidBuddy.com
+              Anikó Kocsis
             </span>
           </Link>
 
           <nav className="flex items-center gap-8">
             <Link
-              href="/"
+              href="/allAuctions"
               className="hover:underline text-gray-700 dark:text-gray-200"
             >
               All Auctions
             </Link>
+            {/* <Link
+              href="/"
+              className="hover:underline text-gray-700 dark:text-gray-200"
+            >
+              All Auctions
+            </Link> */}
             {user && user.role === 'admin' && (
               <>
                 <Link

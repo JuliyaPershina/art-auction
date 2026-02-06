@@ -6,9 +6,17 @@ import {
   serial,
   text,
   timestamp,
+  real,
 } from 'drizzle-orm/pg-core';
 import type { AdapterAccountType } from '@auth/core/adapters';
 import { relations } from 'drizzle-orm';
+
+export const playingWithNeon = pgTable('playing_with_neon', {
+  id: serial('id').primaryKey(),
+  name: text('name'),
+  value: real('value'),
+});
+
 
 export const users = pgTable('bb_user', {
   id: text('id')
@@ -107,6 +115,22 @@ export const items = pgTable('bb_item', {
   startingPrice: integer('startingPrice').notNull().default(0),
   bidInterval: integer('bidInterval').notNull().default(100),
   endDate: timestamp('endDate', { mode: 'date'}).notNull(),
+});
+
+export const pictures = pgTable('bb_picture', {
+  id: serial('id').primaryKey(),
+
+  userId: text('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+
+  fileKey: text('fileKey').notNull(), // Cloudinary public_id
+  name: text('name'), // необовʼязково
+
+  type: text('type').notNull().default('art'),
+  // 'art' | 'blog' | 'other'
+
+  createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow(),
 });
 
 export const bids = pgTable('bb_bids', {
