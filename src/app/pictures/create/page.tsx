@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { createPictureActions } from './createPicture';
 import { pageTitleStyles } from '@/styles';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 
 const CreatePage = ({ onUpload }: { onUpload: () => void }) => {
   const [loading, setLoading] = useState(false);

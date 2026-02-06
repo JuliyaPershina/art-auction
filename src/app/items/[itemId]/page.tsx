@@ -52,12 +52,12 @@ export default async function ItemPage({
 
   const imageUrl = getCloudinaryImageUrl(item.fileKey);
 
-  interface Bid {
-    id: number;
-    amount: number;
-    userName: string;
-    tameStamp: Date;
-  }
+  // interface Bid {
+  //   id: number;
+  //   amount: number;
+  //   userName: string;
+  //   tameStamp: Date;
+  // }
 
   const allBids = await getBidsForItem(item.id);
 

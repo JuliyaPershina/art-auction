@@ -4,6 +4,7 @@ import { database } from '@/db/database';
 import { pictures } from '@/db/schema';
 import { auth } from '../../../../auth';
 import { cloudinary } from '@/lib/cloudinary';
+import type { UploadApiResponse } from 'cloudinary';
 
 export async function createPictureActions({
   file,
@@ -19,17 +20,19 @@ export async function createPictureActions({
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  const uploadResult = await new Promise<any>((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream(
-        { folder: `art-auction/${type}`, resource_type: 'image' },
-        (err, res) => {
-          if (err) reject(err);
-          else resolve(res);
-        },
-      )
-      .end(buffer);
-  });
+  const uploadResult = await new Promise<UploadApiResponse>(
+    (resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(
+          { folder: `art-auction/${type}`, resource_type: 'image' },
+          (err, res) => {
+            if (err) reject(err);
+            else resolve(res as UploadApiResponse);
+          },
+        )
+        .end(buffer);
+    },
+  );
 
   await database.insert(pictures).values({
     name: name ?? null,
