@@ -22,10 +22,11 @@ export function Header() {
   // console.log("session:", session);
 
   return (
-    <header className="bg-gray-100 border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800">
-      <div className="container flex justify-between items-center py-4 px-4">
+    <div className="bg-gray-100 border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800">
+      {/* <div className="container flex justify-between items-center py-4 px-4"> */}
+      <div className="w-full flex items-center justify-between gap-12 py-4 px-6">
         {/* 🔹 Ліва частина — логотип і навігація */}
-        <div className="flex items-center gap-12">
+        <div className="flex items-center gap-12 flex-1 justify-between">
           <Link href="/" className="flex items-center gap-2 hover:underline">
             <Image
               src="/main-logo.jpg"
@@ -46,12 +47,18 @@ export function Header() {
             >
               All Auctions
             </Link>
-            {/* <Link
-              href="/"
+            <Link
+              href="/contact"
               className="hover:underline text-gray-700 dark:text-gray-200"
             >
-              All Auctions
-            </Link> */}
+              Contacts
+            </Link>
+            <Link
+              href="/blog"
+              className="hover:underline text-gray-700 dark:text-gray-200"
+            >
+              Blog
+            </Link>
             {user && user.role === 'admin' && (
               <>
                 <Link
@@ -193,6 +200,6 @@ export function Header() {
           </div>
         </div>
       </div>
-    </header>
+    </div>
   );
 }

@@ -25,13 +25,13 @@ export default function RootLayout({
       <body
         className={cn(
           'min-h-screen bg-background font-sans antialiased',
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <SessionProvider>
           <AppKnockProviders>
             <Header />
-            <div className="container mx-auto py-12">{children}</div>
+            <main className="min-h-screen">{children}</main>
           </AppKnockProviders>
         </SessionProvider>
       </body>
