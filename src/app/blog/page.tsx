@@ -1,16 +1,3 @@
-// const BlogPage = () => {
-
-  
-//   return (
-//     <section>
-//       <h2 >📝 Блог</h2>
-      
-//     </section>
-//   );
-// };
-
-// export default BlogPage;
-
 import Link from 'next/link';
 import { auth } from '../../../auth';
 import { getBlogFeed } from '@/data-access/blog';
