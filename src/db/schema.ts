@@ -17,7 +17,6 @@ export const playingWithNeon = pgTable('playing_with_neon', {
   value: real('value'),
 });
 
-
 export const users = pgTable('bb_user', {
   id: text('id')
     .primaryKey()
@@ -52,7 +51,7 @@ export const accounts = pgTable(
         columns: [account.provider, account.providerAccountId],
       }),
     },
-  ]
+  ],
 );
 
 export const sessions = pgTable('bb_session', {
@@ -76,7 +75,7 @@ export const verificationTokens = pgTable(
         columns: [verificationToken.identifier, verificationToken.token],
       }),
     },
-  ]
+  ],
 );
 
 export const authenticators = pgTable(
@@ -99,10 +98,8 @@ export const authenticators = pgTable(
         columns: [authenticator.userId, authenticator.credentialID],
       }),
     },
-  ]
+  ],
 );
-
-
 
 export const items = pgTable('bb_item', {
   id: serial('id').primaryKey(),
@@ -114,7 +111,7 @@ export const items = pgTable('bb_item', {
   currentBid: integer('currentBid').notNull().default(0),
   startingPrice: integer('startingPrice').notNull().default(0),
   bidInterval: integer('bidInterval').notNull().default(100),
-  endDate: timestamp('endDate', { mode: 'date'}).notNull(),
+  endDate: timestamp('endDate', { mode: 'date' }).notNull(),
 });
 
 export const pictures = pgTable('bb_picture', {
@@ -142,7 +139,7 @@ export const bids = pgTable('bb_bids', {
   userId: text('userId')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  timestamp: timestamp('timestamp', { mode: 'date'}).notNull().defaultNow(),
+  timestamp: timestamp('timestamp', { mode: 'date' }).notNull().defaultNow(),
 });
 
 export const usersRelations = relations(bids, ({ one }) => ({
@@ -152,4 +149,75 @@ export const usersRelations = relations(bids, ({ one }) => ({
   }),
 }));
 
+// Таблиця постів блогу
+export const blogPosts = pgTable('bb_blog_post', {
+  id: serial('id').primaryKey(),
+
+  authorId: text('authorId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+
+  title: text('title').notNull(),
+
+  excerpt: text('excerpt'), // короткий опис для лєнти
+
+  content: text('content').notNull(),
+  // довгий текст (markdown або HTML)
+
+  slug: text('slug').notNull().unique(),
+
+  coverImageKey: text('coverImageKey'),
+  // Cloudinary public_id (опційно)
+
+  publishedAt: timestamp('publishedAt', { mode: 'date' })
+    .notNull()
+    .defaultNow(),
+
+  createdAt: timestamp('createdAt', { mode: 'date' }).notNull().defaultNow(),
+
+  updatedAt: timestamp('updatedAt', { mode: 'date' }),
+
+  isPublished: boolean('isPublished').notNull().default(true),
+});
+
+// Фото в статтях
+export const blogPostPictures = pgTable('bb_blog_post_picture', {
+  id: serial('id').primaryKey(),
+
+  postId: integer('postId')
+    .notNull()
+    .references(() => blogPosts.id, { onDelete: 'cascade' }),
+
+  pictureId: integer('pictureId')
+    .notNull()
+    .references(() => pictures.id, { onDelete: 'cascade' }),
+
+  order: integer('order').notNull().default(0),
+});
+
+// Relations
+export const blogPostsRelations = relations(blogPosts, ({ one, many }) => ({
+  author: one(users, {
+    fields: [blogPosts.authorId],
+    references: [users.id],
+  }),
+  images: many(blogPostPictures),
+}));
+
+export const blogPostPicturesRelations = relations(
+  blogPostPictures,
+  ({ one }) => ({
+    post: one(blogPosts, {
+      fields: [blogPostPictures.postId],
+      references: [blogPosts.id],
+    }),
+    picture: one(pictures, {
+      fields: [blogPostPictures.pictureId],
+      references: [pictures.id],
+    }),
+  }),
+);
+
 export type Item = typeof items.$inferSelect;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type NewBlogPost = typeof blogPosts.$inferInsert;
