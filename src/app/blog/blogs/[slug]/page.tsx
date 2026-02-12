@@ -1,18 +1,27 @@
 
+import { getBlogPostBySlug } from '@/data-access/blog';
 import { pageTitleStyles } from '@/styles';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
-import { getBlogPostBySlug } from '@/data-access/blog';
+import { auth } from '../../../../../auth';
+import { deleteBlogPostAction } from './deleteBlogPostAction';
 import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
 
-export default async function BlogPostPage({
-  params: { slug },
-}: {
+interface BlogPostPageProps {
   params: { slug: string };
-}) {
+}
+
+// 🔹 Стандартно робимо Server Component async
+export default async function BlogPostPage(props: BlogPostPageProps) {
+  // 🔹 асинхронно отримуємо params
+  const { slug } = await props.params;
+
+  // 🔹 отримуємо пост
   const post = await getBlogPostBySlug(slug);
+  const session = await auth();
+  const isAdmin = session?.user?.role === 'admin';
 
   if (!post) {
     return (
@@ -22,7 +31,6 @@ export default async function BlogPostPage({
         <p className="italic text-center max-w-md">
           The blog post you are looking for does not exist.
         </p>
-
         <Button asChild>
           <Link href="/blog">Back to Blog</Link>
         </Button>
@@ -30,7 +38,7 @@ export default async function BlogPostPage({
     );
   }
 
-  const imageUrl = post.coverImageKey
+  const coverImageUrl = post.coverImageKey
     ? getCloudinaryImageUrl(post.coverImageKey)
     : null;
 
@@ -39,16 +47,15 @@ export default async function BlogPostPage({
       {/* HEADER */}
       <div className="space-y-4">
         <h1 className={pageTitleStyles}>{post.title}</h1>
-
         <p className="text-sm text-gray-500">
           Published {format(new Date(post.publishedAt), 'PPP')}
         </p>
       </div>
 
       {/* COVER IMAGE */}
-      {imageUrl && (
+      {coverImageUrl && (
         <Image
-          src={imageUrl}
+          src={coverImageUrl}
           alt={post.title}
           width={1200}
           height={600}
@@ -59,10 +66,48 @@ export default async function BlogPostPage({
 
       {/* CONTENT */}
       <article className="prose dark:prose-invert max-w-none">
-        {/* якщо зберігаєш HTML */}
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
       </article>
 
+      {/* GALLERY IMAGES */}
+      {post.images && post.images.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {post.images.map((imgRelation) => {
+            const imgUrl = imgRelation.picture?.fileKey
+              ? getCloudinaryImageUrl(imgRelation.picture.fileKey)
+              : null;
+            if (!imgUrl) return null;
+            return (
+              <Image
+                key={imgRelation.id}
+                src={imgUrl}
+                alt={post.title}
+                width={400}
+                height={300}
+                className="w-full h-[200px] object-cover rounded-lg shadow-sm"
+                unoptimized
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* ADMIN CONTROLS */}
+      {isAdmin && (
+        <div className="flex gap-4 pt-6">
+          <Link href={`/blog/blogs/${post.slug}/edit`}>
+            <Button variant="outline">Edit Post</Button>
+          </Link>
+
+          <form action={deleteBlogPostAction.bind(null, post.id)}>
+            <Button variant="destructive" type="submit">
+              Delete Post
+            </Button>
+          </form>
+        </div>
+      )}
+
+      {/* BACK BUTTON */}
       <div className="pt-10">
         <Button asChild variant="outline">
           <Link href="/blog">← Back to blog</Link>
@@ -71,3 +116,6 @@ export default async function BlogPostPage({
     </main>
   );
 }
+
+
+
