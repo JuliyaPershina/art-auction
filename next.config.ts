@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'res.cloudinary.com', // ✅ Cloudinary для твоїх айтемів
+        hostname: 'res.cloudinary.com', // ✅ Cloudinary для айтемів
         pathname: '/**', // всі шляхи
       },
       {
