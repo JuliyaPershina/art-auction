@@ -196,18 +196,21 @@ export function Header() {
                 <Link
                   href="/allAuctions"
                   className="hover:underline text-gray-700 dark:text-gray-200"
+                  onClick={() => setMenuOpen(false)}
                 >
                   All Auctions
                 </Link>
                 <Link
                   href="/contact"
                   className="hover:underline text-gray-700 dark:text-gray-200"
+                  onClick={() => setMenuOpen(false)}
                 >
                   Contacts
                 </Link>
                 <Link
                   href="/blog"
                   className="hover:underline text-gray-700 dark:text-gray-200"
+                  onClick={() => setMenuOpen(false)}
                 >
                   Blog
                 </Link>
@@ -217,6 +220,7 @@ export function Header() {
                     <Link
                       href="/items/create"
                       className="hover:underline text-gray-700 dark:text-gray-200"
+                      onClick={() => setMenuOpen(false)}
                     >
                       Create Auction
                     </Link>
@@ -228,6 +232,7 @@ export function Header() {
                     <Link
                       href="/auctions"
                       className="hover:underline text-gray-700 dark:text-gray-200"
+                      onClick={() => setMenuOpen(false)}
                     >
                       My Auctions
                     </Link>

@@ -6,16 +6,81 @@ import { Button } from '@/components/ui/button';
 import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
 import Image from 'next/image';
 import { format } from 'date-fns';
+import type { Metadata } from 'next';
+import { Pagination } from '@/components/Pagination';
 
-export default async function BlogPage() {
+const LIMIT = 2;
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}): Promise<Metadata> {
+  const page = Math.max(1, Number(searchParams.page) || 1);
+
+  return {
+    title: page > 1 ? `Blog – Page ${page}` : 'Blog',
+    description:
+      'Latest news and insights about contemporary art and auctions.',
+    alternates: {
+      canonical: page > 1 ? `/blog?page=${page}` : '/blog',
+    },
+  };
+}
+
+function generatePagination(current: number, total: number) {
+  const delta = 1; // скільки сторінок показувати біля активної
+  const range: (number | string)[] = [];
+  const rangeWithDots: (number | string)[] = [];
+
+  for (let i = 1; i <= total; i++) {
+    if (
+      i === 1 ||
+      i === total ||
+      (i >= current - delta && i <= current + delta)
+    ) {
+      range.push(i);
+    }
+  }
+
+  let last: number | undefined;
+
+  for (const page of range) {
+    if (last) {
+      if (Number(page) - last === 2) {
+        rangeWithDots.push(last + 1);
+      } else if (Number(page) - last > 2) {
+        rangeWithDots.push('...');
+      }
+    }
+    rangeWithDots.push(page);
+    last = Number(page);
+  }
+
+  return rangeWithDots;
+}
+
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
   const session = await auth();
-  const posts = await getBlogFeed();
+
+  const page = Math.max(1, Number(params.page) || 1);
+  const offset = (page - 1) * LIMIT;
+
+  const { posts, total } = await getBlogFeed(LIMIT, offset);
+  const totalPages = Math.ceil(total / LIMIT);
+  const pages = generatePagination(page, totalPages);
 
   const isAdmin = session?.user?.role === 'admin';
 
   return (
-    <main className="space-y-10">
-      <div className="flex justify-between items-center">
+    <main className="space-y-10 px-6 pb-16">
+      {/* HEADER */}
+      <div className="flex justify-between items-center pt-6">
         <h1 className={pageTitleStyles}>Blog</h1>
 
         {isAdmin && (
@@ -25,6 +90,7 @@ export default async function BlogPage() {
         )}
       </div>
 
+      {/* POSTS */}
       {posts.length === 0 ? (
         <p className="text-muted-foreground">No blog posts yet.</p>
       ) : (
@@ -46,8 +112,7 @@ export default async function BlogPage() {
                       alt={post.title}
                       width={300}
                       height={200}
-                      className="rounded-xl object-cover w-full md:w-[300px] h-[200px]"
-                      unoptimized
+                      className="w-full object-cover rounded-xl md:w-[300px] h-[200px]"
                     />
                   )}
 
@@ -71,7 +136,9 @@ export default async function BlogPage() {
           })}
         </div>
       )}
+
+      {/* PAGINATION */}
+      <Pagination currentPage={page} totalPages={totalPages} basePath="/blog" />
     </main>
   );
 }
-
