@@ -14,9 +14,10 @@ const LIMIT = 2;
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: { page?: string };
-}): Promise<Metadata> {
-  const page = Math.max(1, Number(searchParams.page) || 1);
+  searchParams: Promise<{ page?: string }>;
+  }): Promise<Metadata> {
+  const params = await searchParams; 
+ const page = Math.max(1, Number(params.page) || 1);
 
   return {
     title: page > 1 ? `Blog – Page ${page}` : 'Blog',
@@ -28,37 +29,37 @@ export async function generateMetadata({
   };
 }
 
-function generatePagination(current: number, total: number) {
-  const delta = 1; // скільки сторінок показувати біля активної
-  const range: (number | string)[] = [];
-  const rangeWithDots: (number | string)[] = [];
+// function generatePagination(current: number, total: number) {
+//   const delta = 1; // скільки сторінок показувати біля активної
+//   const range: (number | string)[] = [];
+//   const rangeWithDots: (number | string)[] = [];
 
-  for (let i = 1; i <= total; i++) {
-    if (
-      i === 1 ||
-      i === total ||
-      (i >= current - delta && i <= current + delta)
-    ) {
-      range.push(i);
-    }
-  }
+//   for (let i = 1; i <= total; i++) {
+//     if (
+//       i === 1 ||
+//       i === total ||
+//       (i >= current - delta && i <= current + delta)
+//     ) {
+//       range.push(i);
+//     }
+//   }
 
-  let last: number | undefined;
+//   let last: number | undefined;
 
-  for (const page of range) {
-    if (last) {
-      if (Number(page) - last === 2) {
-        rangeWithDots.push(last + 1);
-      } else if (Number(page) - last > 2) {
-        rangeWithDots.push('...');
-      }
-    }
-    rangeWithDots.push(page);
-    last = Number(page);
-  }
+//   for (const page of range) {
+//     if (last) {
+//       if (Number(page) - last === 2) {
+//         rangeWithDots.push(last + 1);
+//       } else if (Number(page) - last > 2) {
+//         rangeWithDots.push('...');
+//       }
+//     }
+//     rangeWithDots.push(page);
+//     last = Number(page);
+//   }
 
-  return rangeWithDots;
-}
+//   return rangeWithDots;
+// }
 
 export default async function BlogPage({
   searchParams,
@@ -73,7 +74,7 @@ export default async function BlogPage({
 
   const { posts, total } = await getBlogFeed(LIMIT, offset);
   const totalPages = Math.ceil(total / LIMIT);
-  const pages = generatePagination(page, totalPages);
+  // const pages = generatePagination(page, totalPages);
 
   const isAdmin = session?.user?.role === 'admin';
 
