@@ -34,6 +34,7 @@ async function uploadToCloudinary(file: File) {
 }
 
 export async function createBlogPostAction(formData: FormData) {
+
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
@@ -58,60 +59,81 @@ export async function createBlogPostAction(formData: FormData) {
   const existing = await database.query.blogPosts.findFirst({
     where: (post, { eq }) => eq(post.slug, slug),
   });
+  try {
+    
 
-  if (existing) {
-    slug = `${slug}-${Date.now()}`;
-  }
-
-  // 🔹 Завантаження cover
-  let coverImageKey: string | undefined;
-
-  if (coverImage && coverImage.size > 0) {
-    const uploadResult = await uploadToCloudinary(coverImage);
-    coverImageKey = uploadResult.public_id;
-  }
-
-  // 🔹 Створення поста
-  const insertedPost = await database
-    .insert(blogPosts)
-    .values({
-      title,
-      excerpt,
-      content,
-      slug,
-      coverImageKey,
-      authorId: session.user.id,
-    })
-    .returning();
-
-  const postId = insertedPost[0].id;
-
-  // 🔹 Multi images
-  if (images && images.length > 0) {
-    for (let i = 0; i < images.length; i++) {
-      const file = images[i];
-      if (!file || file.size === 0) continue;
-
-      const uploadResult = await uploadToCloudinary(file);
-
-      // 1️⃣ запис в pictures
-      const insertedPicture = await database
-        .insert(pictures)
-        .values({
-          userId: session.user.id,
-          fileKey: uploadResult.public_id,
-          type: 'blog',
-        })
-        .returning();
-
-      // 2️⃣ зв’язок з постом
-      await database.insert(blogPostPictures).values({
-        postId,
-        pictureId: insertedPicture[0].id,
-        order: i,
-      });
+    if (existing) {
+      slug = `${slug}-${Date.now()}`;
     }
-  }
 
+    // 🔹 Завантаження cover
+    let coverImageKey: string | undefined;
+
+    if (coverImage && coverImage.size > 0) {
+      const uploadResult = await uploadToCloudinary(coverImage);
+      coverImageKey = uploadResult.public_id;
+    }
+
+    // 🔹 Створення поста
+    const insertedPost = await database
+      .insert(blogPosts)
+      .values({
+        title,
+        excerpt,
+        content,
+        slug,
+        coverImageKey,
+        authorId: session.user.id,
+      })
+      .returning();
+
+    const postId = insertedPost[0].id;
+
+    // 🔹 Multi images
+    if (images && images.length > 0) {
+      for (let i = 0; i < images.length; i++) {
+        const file = images[i];
+        if (!file || file.size === 0) continue;
+
+        const MAX_SIZE = 1 * 1024 * 1024; // 1MB
+
+        if (coverImage && coverImage.size > MAX_SIZE) {
+          throw new Error('Cover image must be less than 1MB');
+        }
+
+        for (const file of images) {
+          if (file.size > MAX_SIZE) {
+            throw new Error('Each gallery image must be less than 1MB');
+          }
+        }
+
+        const uploadResult = await uploadToCloudinary(file);
+
+        // 1️⃣ запис в pictures
+        const insertedPicture = await database
+          .insert(pictures)
+          .values({
+            userId: session.user.id,
+            fileKey: uploadResult.public_id,
+            type: 'blog',
+          })
+          .returning();
+
+        // 2️⃣ зв’язок з постом
+        await database.insert(blogPostPictures).values({
+          postId,
+          pictureId: insertedPicture[0].id,
+          order: i,
+        });
+      }
+    }
+
+    
+  } catch (error: any) {
+    return {
+      error: error.message || 'Something went wrong',
+    };
+  }
+  
   redirect(`/blog/blogs/${slug}`);
 }

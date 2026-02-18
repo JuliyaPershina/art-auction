@@ -114,21 +114,21 @@ export const items = pgTable('bb_item', {
   endDate: timestamp('endDate', { mode: 'date' }).notNull(),
 });
 
-export const pictures = pgTable('bb_picture', {
-  id: serial('id').primaryKey(),
+  export const pictures = pgTable('bb_picture', {
+    id: serial('id').primaryKey(),
 
-  userId: text('userId')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+    userId: text('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
 
-  fileKey: text('fileKey').notNull(), // Cloudinary public_id
-  name: text('name'), // необовʼязково
+    fileKey: text('fileKey').notNull(), // Cloudinary public_id
+    name: text('name'), // необовʼязково
 
-  type: text('type').notNull().default('art'),
-  // 'art' | 'blog' | 'other'
+    type: text('type').notNull().default('art'),
+    // 'art' | 'blog' | 'other'
 
-  createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow(),
-});
+    createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow(),
+  });
 
 export const bids = pgTable('bb_bids', {
   id: serial('id').primaryKey(),
