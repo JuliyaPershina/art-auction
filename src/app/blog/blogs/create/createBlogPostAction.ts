@@ -60,8 +60,6 @@ export async function createBlogPostAction(formData: FormData) {
     where: (post, { eq }) => eq(post.slug, slug),
   });
   try {
-    
-
     if (existing) {
       slug = `${slug}-${Date.now()}`;
     }
@@ -127,12 +125,9 @@ export async function createBlogPostAction(formData: FormData) {
         });
       }
     }
-
-    
-  } catch (error: any) {
-    return {
-      error: error.message || 'Something went wrong',
-    };
+  } catch (error) {
+    console.error(error);
+    throw new Error('Failed to create blog post');
   }
   
   redirect(`/blog/blogs/${slug}`);
