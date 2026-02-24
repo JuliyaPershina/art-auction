@@ -4,6 +4,8 @@ import PictureGallery from '@/components/PictureGallery';
 import CreatePictureToggle from '@/components/CreatePictureToggle';
 import Hero from '@/components/Hero';
 import { eq } from 'drizzle-orm';
+import GalleryPage from '@/components/GalleryPage';
+
 
 export default async function HomePage() {
   const session = await auth(); // може бути null
@@ -18,9 +20,10 @@ export default async function HomePage() {
     <main className="space-y-8 p-4">
       <Hero />
 
-      {isAdmin && <CreatePictureToggle />}
+      {/* {isAdmin && <CreatePictureToggle />} */}
 
-      <PictureGallery pictures={allPictures} isAdmin={isAdmin} />
+      {/* <PictureGallery pictures={allPictures} isAdmin={isAdmin} /> */}
+      <GalleryPage initialPictures={allPictures} isAdmin={isAdmin} />
     </main>
   );
 }

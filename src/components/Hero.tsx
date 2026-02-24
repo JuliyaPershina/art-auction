@@ -3,7 +3,7 @@ import Link from 'next/link';
 const Hero = () => {
   return (
     <header
-      className=" bg-white text-gray-800 transition-colors duration-300 py-16 sm:py-20 px-4"
+      className=" bg-white text-gray-800 transition-colors duration-300 pt-16 pb-8 px-4"
     >
       <div
         className=" max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12"
