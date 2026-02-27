@@ -42,32 +42,24 @@
 //   );
 // }
 
-// src/app/[locale]/layout.tsx
 import { Header } from '@/components/Header';
-import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
+import { ReactNode } from 'react';
 
 type Locale = 'hu' | 'en';
+const localeFallback: Locale = 'en';
 
-interface LayoutProps {
-  children: ReactNode;
-  params: Promise<{ locale: Locale }>; // params приходить як Promise
-}
-
-// Гард для перевірки локалі
+// Гард для перевірки допустимих локалей
 const isLocale = (l: string): l is Locale => l === 'hu' || l === 'en';
 
-/**
- * Генерує metadata
- */
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params; // розпаковуємо Promise
+type LayoutProps = {
+  children: ReactNode;
+  params: { locale: string }; // Next.js надає params як object, не Promise
+};
 
-  if (!isLocale(locale)) throw new Error(`Invalid locale: ${locale}`);
+// Генерація метаданих
+export function generateMetadata({ params }: LayoutProps): Metadata {
+  const locale = isLocale(params.locale) ? params.locale : localeFallback;
 
   return {
     alternates: {
@@ -87,13 +79,9 @@ export async function generateMetadata({
   };
 }
 
-/**
- * Layout для локалізованих сторінок
- */
-export default async function LocaleLayout({ children, params }: LayoutProps) {
-  const { locale } = await params; // розпаковуємо Promise
-
-  if (!isLocale(locale)) throw new Error(`Invalid locale: ${locale}`);
+// Основний layout
+export default function LocaleLayout({ children, params }: LayoutProps) {
+  const locale = isLocale(params.locale) ? params.locale : localeFallback;
 
   return (
     <>
