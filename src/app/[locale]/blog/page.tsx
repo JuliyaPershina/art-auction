@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { auth } from '../../../auth';
+import { auth } from '../../../../auth';
 import { getBlogFeed } from '@/data-access/blog';
 import { pageTitleStyles } from '@/styles';
 import { Button } from '@/components/ui/button';
@@ -9,35 +9,44 @@ import { format } from 'date-fns';
 import type { Metadata } from 'next';
 import { Pagination } from '@/components/Pagination';
 
+
 const LIMIT = 2;
 
 export async function generateMetadata({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: 'hu' | 'en' }>;
   searchParams: Promise<{ page?: string }>;
-  }): Promise<Metadata> {
-  const params = await searchParams; 
- const page = Math.max(1, Number(params.page) || 1);
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const sp = await searchParams;
+
+  const page = Math.max(1, Number(sp.page) || 1);
 
   return {
     title: page > 1 ? `Blog – Page ${page}` : 'Blog',
     description:
       'Latest news and insights about contemporary art and auctions.',
     alternates: {
-      canonical: page > 1 ? `/blog?page=${page}` : '/blog',
+      canonical: page > 1 ? `/${locale}/blog?page=${page}` : `/${locale}/blog`,
     },
   };
 }
 
 export default async function BlogPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: 'hu' | 'en' }>;
   searchParams: Promise<{ page?: string }>;
-}) {
-  const params = await searchParams;
+  }) {
+ 
+  const { locale } = await params;
+  const sp = await searchParams;
   const session = await auth();
 
-  const page = Math.max(1, Number(params.page) || 1);
+  const page = Math.max(1, Number(sp.page) || 1);
   const offset = (page - 1) * LIMIT;
 
   const { posts, total } = await getBlogFeed(LIMIT, offset);
@@ -53,7 +62,7 @@ export default async function BlogPage({
 
         {isAdmin && (
           <Button asChild>
-            <Link href="/blog/blogs/create">Create Post</Link>
+            <Link href={`/${locale}/blog/blogs/create`}>Create Post</Link>
           </Button>
         )}
       </div>
@@ -70,7 +79,7 @@ export default async function BlogPage({
             return (
               <Link
                 key={post.id}
-                href={`/blog/blogs/${post.slug}`}
+                href={`/${locale}/blog/blogs/${post.slug}`}
                 className="group border rounded-2xl p-6 hover:shadow-lg transition"
               >
                 <div className="flex flex-col md:flex-row gap-6">
@@ -80,7 +89,7 @@ export default async function BlogPage({
                       alt={post.title}
                       width={300}
                       height={200}
-                      className="w-full object-cover rounded-xl md:w-[300px] h-[200px]"
+                      className="w-full object-cover rounded-xl md:w-75 h-50"
                     />
                   )}
 
@@ -106,7 +115,11 @@ export default async function BlogPage({
       )}
 
       {/* PAGINATION */}
-      <Pagination currentPage={page} totalPages={totalPages} basePath="/blog" />
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        basePath={`/${locale}/blog`}
+      />
     </main>
   );
 }

@@ -1,29 +1,3 @@
-// import { getBlogPostBySlug } from '@/data-access/blog';
-// import { updateBlogPostAction } from '../updateBlogPostAction';
-// import { notFound } from 'next/navigation';
-
-// export default async function EditBlogPage({
-//   params: { slug },
-// }: {
-//   params: { slug: string };
-// }) {
-//   const post = await getBlogPostBySlug(slug);
-
-//   if (!post) return notFound();
-
-//   return (
-//     <form action={updateBlogPostAction} className="space-y-6 max-w-2xl">
-//       <input type="hidden" name="id" value={post.id} />
-
-//       <input name="title" defaultValue={post.title} />
-//       <textarea name="excerpt" defaultValue={post.excerpt ?? ''} />
-//       <textarea name="content" defaultValue={post.content} />
-
-//       <button type="submit">Update</button>
-//     </form>
-//   );
-// }
-
 import { getBlogPostBySlug } from '@/data-access/blog';
 import { updateBlogPostAction } from '../updateBlogPostAction';
 import { notFound } from 'next/navigation';

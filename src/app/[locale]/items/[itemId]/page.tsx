@@ -7,7 +7,7 @@ import { formatToDollar } from '@/util/currency';
 import { createBidAction } from './actions';
 import { getBidsForItem } from '@/data-access/bids';
 import { getItem } from '@/data-access/items';
-import { auth } from '../../../../auth';
+import { auth } from '../../../../../auth';
 
 import { Badge } from '@/components/ui/badge';
 import { isBidOver } from '@/util/bids';
@@ -20,15 +20,18 @@ function formatTimestamp(timestamp: Date) {
 }
 
 export default async function ItemPage({
-  params: { itemId },
+  params,
 }: {
-  params: { itemId: string };
+  params: Promise<{ locale: 'hu' | 'en'; itemId: string }>;
 }) {
+  const { locale, itemId } = await params;
   const session = await auth();
 
   const id = Number(itemId);
   if (Number.isNaN(id)) {
-    return <p>Invalid item id</p>;
+    return (
+      <p>{locale === 'hu' ? 'Érvénytelen azonosító' : 'Invalid item id'}</p>
+    );
   }
 
   const item = await getItem(id);
@@ -37,14 +40,19 @@ export default async function ItemPage({
     return (
       <div className="space-y-8 flex flex-col items-center justify-center mt-20">
         <Image src="/pacage.svg" width={200} height={200} alt="Pacage" />
-        <h1 className={pageTitleStyles}>Item not Found</h1>
+        <h1 className={pageTitleStyles}>
+          {locale === 'hu' ? 'Tétel nem található' : 'Item not found'}
+        </h1>
         <p className="italic">
-          The item you are loking for does not exist. Please go back and search
-          for a different auction item
+          {locale === 'hu'
+            ? 'A keresett tétel nem létezik. Kérjük, lépjen vissza, és keressen egy másik aukciós tételt.'
+            : 'The item you are loking for does not exist. Please go back and search for a different auction item'}
         </p>
 
         <Button asChild>
-          <Link href="/">View Auctions</Link>
+          <Link href={`/${locale}`}>
+            {locale === 'hu' ? 'Vissza az aukciókhoz' : 'View Auctions'}
+          </Link>
         </Button>
       </div>
     );
@@ -52,34 +60,38 @@ export default async function ItemPage({
 
   const imageUrl = getCloudinaryImageUrl(item.fileKey);
 
-  // interface Bid {
-  //   id: number;
-  //   amount: number;
-  //   userName: string;
-  //   tameStamp: Date;
-  // }
-
   const allBids = await getBidsForItem(item.id);
 
   const hasBids = allBids.length > 0;
 
   const isBiddingOver = isBidOver(item);
-  console.log('IS BIDDING OVER:', isBiddingOver);
 
   const canPlaceBid =
     session && item.userId !== session.user.id && !isBiddingOver;
 
+  const t = {
+    auctionFor: locale === 'hu' ? 'Aukció:' : 'Auction for:',
+    currentBid: locale === 'hu' ? 'Aktuális licit' : 'Current Bid',
+    startingPrice: locale === 'hu' ? 'Kezdő ár' : 'Starting price',
+    bidInterval: locale === 'hu' ? 'Licitlépcső' : 'Bid Interval',
+    placeBid: locale === 'hu' ? 'Licitálás' : 'Place a Bid',
+    biddingOver: locale === 'hu' ? 'Licit lezárva' : 'Bidding over',
+    noBids: locale === 'hu' ? 'Még nincs licit' : 'No bids yet',
+    currentBids: locale === 'hu' ? 'Aktuális licitkör' : 'Current Bids',
+    by: locale === 'hu' ? 'által' : 'by',
+  };
+
   return (
-    <main className="space-y-8 ">
+    <main className="space-y-8 p-8">
       <div className="flex flex-wrap gap-8">
         <div className="space-y-8">
           <h1 className={pageTitleStyles}>
-            <span className="font-normal">Auction for:</span> <br />
+            <span className="font-normal">{t.auctionFor} :</span> <br />
             {item.name}
           </h1>
           {isBiddingOver && (
             <Badge className="w-fit" variant={'destructive'}>
-              Bidding over
+              {t.biddingOver}
             </Badge>
           )}
 
@@ -90,33 +102,34 @@ export default async function ItemPage({
               alt={item.name}
               width={200}
               height={200}
-              className="w-[300px] h-[300px] rounded-xl shadow-lg object-cover"
+              className="w-75 h-75 rounded-xl shadow-lg object-cover"
               unoptimized
             />
 
             <div className=" space-y-4">
               <p className="text-lg text-gray-700 dark:text-gray-300">
-                Current Bid: ${formatToDollar(item.currentBid)}
+                {t.currentBid}: ${formatToDollar(item.currentBid)}
               </p>
               <p className="text-lg text-gray-700 dark:text-gray-300">
-                Starting price: ${formatToDollar(item.startingPrice)}
+                {t.startingPrice}: ${formatToDollar(item.startingPrice)}
               </p>
               <p>
-                Bid Interval: <span>${formatToDollar(item.bidInterval)}</span>
+                {t.bidInterval}:{' '}
+                <span>${formatToDollar(item.bidInterval)}</span>
               </p>
             </div>
           </div>
         </div>
         {/* Current bids */}
         {hasBids ? (
-          <div className="space-y-8 flex-1 min-w-[300px]">
+          <div className="space-y-8 flex-1 min-w-75">
             <div className="flex justify-between">
               <h2 className="text-3xl font-semibold self-start text-left mb-20">
-                Current Bids:
+                {t.currentBids}:
               </h2>
               {canPlaceBid && (
-                <form action={createBidAction.bind(null, item.id)}>
-                  <Button>Place a Bid</Button>
+                <form action={createBidAction.bind(null, locale, item.id)}>
+                  <Button>{t.placeBid}</Button>
                 </form>
               )}
             </div>
@@ -128,7 +141,8 @@ export default async function ItemPage({
                       <span className="font-bold">
                         ${formatToDollar(bid.amount)}
                       </span>
-                      by{'  '}
+                      {t.by}
+                      {'  '}
                       <span className="font-bold">{bid.user.name}</span>
                     </div>
                     <span className="font-thin">
@@ -143,17 +157,17 @@ export default async function ItemPage({
           <div className="flex-1 flex flex-col text-center gap-8 items-center">
             <div>
               <h2 className="text-3xl font-semibold self-start text-left mb-20">
-                Current Bids:
+                {t.currentBids}:
               </h2>
 
               {canPlaceBid && (
-                <form action={createBidAction.bind(null, item.id)}>
-                  <Button>Place a Bid</Button>
+                <form action={createBidAction.bind(null, locale, item.id)}>
+                  <Button>{t.placeBid}</Button>
                 </form>
               )}
             </div>
             <Image src="/pacage.svg" width={200} height={200} alt="Pacage" />
-            <h2 className="text-2xl font-semibold">No Bids yet</h2>
+            <h2 className="text-2xl font-semibold">{t.noBids}</h2>
           </div>
         )}
       </div>

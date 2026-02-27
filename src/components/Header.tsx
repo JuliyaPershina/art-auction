@@ -12,8 +12,13 @@ import { signIn, signOut, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { formatToDollar } from '@/util/currency';
 import { FaLaptopCode, FaTimes, FaBars } from 'react-icons/fa';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
-export function Header() {
+interface HeaderProps {
+  locale: 'hu' | 'en';
+}
+
+export function Header({ locale }: HeaderProps) {
   const [isVisible, setIsVisible] = useState(false);
   const notifButtonRef = useRef<HTMLButtonElement | null>(null);
   const { data: session } = useSession();
@@ -23,17 +28,19 @@ export function Header() {
 
   return (
     <div className="relative bg-gray-100 border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800">
-      {/* <div className="container flex justify-between items-center py-4 px-4"> */}
       <div className="w-full flex items-center justify-between gap-12 py-4 px-6">
         {/* 🔹 Ліва частина — логотип і навігація */}
         <div className="flex items-center gap-12 flex-1 justify-between">
-          <Link href="/" className="flex items-center gap-2 hover:underline">
+          <Link
+            href={`/${locale}`}
+            className="flex items-center gap-2 hover:underline"
+          >
             <Image
               src="/main-logo.jpg"
               alt="Art Auction Logo"
               width={50}
               height={50}
-              className="w-[50px] h-[50px] object-cover rounded-full"
+              className="w-12.5 h-12.5 object-cover rounded-full"
             />
             <span className="font-semibold text-lg text-gray-800 dark:text-gray-100">
               Anikó Kocsis
@@ -42,40 +49,40 @@ export function Header() {
 
           <nav className="hidden lg:flex items-center gap-8">
             <Link
-              href="/allAuctions"
+              href={`/${locale}/allAuctions`}
               className="hover:underline text-gray-700 dark:text-gray-200"
             >
-              All Auctions
+              {locale === 'hu' ? 'Aukciók' : 'Auctions'}
             </Link>
             <Link
-              href="/contact"
+              href={`/${locale}/contact`}
               className="hover:underline text-gray-700 dark:text-gray-200"
             >
-              Contacts
+              {locale === 'hu' ? 'Kapcsolat' : 'Contact'}
             </Link>
             <Link
-              href="/blog"
+              href={`/${locale}/blog`}
               className="hover:underline text-gray-700 dark:text-gray-200"
             >
-              Blog
+              {locale === 'hu' ? 'Blog' : 'Blog'}
             </Link>
             {user && user.role === 'admin' && (
               <>
                 <Link
-                  href="/items/create"
+                  href={`/${locale}/items/create`}
                   className="hover:underline text-gray-700 dark:text-gray-200"
                 >
-                  Create Auction
+                  {locale === 'hu' ? 'Új aukció létrehozása' : 'Create Auction'}
                 </Link>
               </>
             )}
             {user && (
               <>
                 <Link
-                  href="/auctions"
+                  href={`/${locale}/auctions`}
                   className="hover:underline text-gray-700 dark:text-gray-200"
                 >
-                  My Auctions
+                  {locale === 'hu' ? 'Saját aukcióim' : 'My Auctions'}
                 </Link>
               </>
             )}
@@ -194,35 +201,37 @@ export function Header() {
             <div className="lg:hidden absolute top-full left-0 w-full bg-white dark:bg-gray-900 shadow-lg border-t border-gray-200 dark:border-gray-800 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
               <div className="flex flex-col items-center p-6 space-y-4 text-gray-800 dark:text-gray-200">
                 <Link
-                  href="/allAuctions"
+                  href={`/${locale}/allAuctions`}
                   className="hover:underline text-gray-700 dark:text-gray-200"
                   onClick={() => setMenuOpen(false)}
                 >
-                  All Auctions
+                  {locale === 'hu' ? 'Összes aukció' : 'All Auctions'}
                 </Link>
                 <Link
-                  href="/contact"
+                  href={`/${locale}/contact`}
                   className="hover:underline text-gray-700 dark:text-gray-200"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Contacts
+                  {locale === 'hu' ? 'Kapcsolat' : 'Contact'}
                 </Link>
                 <Link
-                  href="/blog"
+                  href={`/${locale}/blog`}
                   className="hover:underline text-gray-700 dark:text-gray-200"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Blog
+                  {locale === 'hu' ? 'Blog' : 'Blog'}
                 </Link>
                 {/* Create Auction */}
                 {user && user.role === 'admin' && (
                   <>
                     <Link
-                      href="/items/create"
+                      href={`/${locale}/items/create`}
                       className="hover:underline text-gray-700 dark:text-gray-200"
                       onClick={() => setMenuOpen(false)}
                     >
-                      Create Auction
+                      {locale === 'hu'
+                        ? 'Új aukció létrehozása'
+                        : 'Create Auction'}
                     </Link>
                   </>
                 )}
@@ -230,11 +239,11 @@ export function Header() {
                 {user && (
                   <>
                     <Link
-                      href="/auctions"
+                      href={`/${locale}/auctions`}
                       className="hover:underline text-gray-700 dark:text-gray-200"
                       onClick={() => setMenuOpen(false)}
                     >
-                      My Auctions
+                      {locale === 'hu' ? 'Saját aukcióim' : 'My Auctions'}
                     </Link>
                   </>
                 )}
@@ -312,7 +321,7 @@ export function Header() {
 
                                   {/* 🔗 Кнопка перегляду */}
                                   <Link
-                                    href={`/items/${data.itemId}`}
+                                    href={`/${locale}/items/${data.itemId}`}
                                     onClick={() => setIsVisible(false)}
                                     className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline"
                                   >
@@ -363,6 +372,7 @@ export function Header() {
                           Sign In
                         </Button>
                       )}
+                      <LanguageSwitcher />
                     </div>
                   </div>
                 </div>
@@ -371,7 +381,7 @@ export function Header() {
           )}
         </div>
 
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden  md:flex  items-center gap-4">
           {/* 🔘 Вхід / Вихід */}
           <div>
             {user ? (
@@ -386,6 +396,7 @@ export function Header() {
                 Sign In
               </Button>
             )}
+            <LanguageSwitcher />
           </div>
         </div>
       </div>

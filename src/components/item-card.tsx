@@ -1,23 +1,22 @@
 'use client';
 
 import Image from 'next/image';
-import { Button } from './ui/button';
 import Link from 'next/link';
-import { formatToDollar } from '@/util/currency';
-import { format } from 'date-fns';
-import { isBidOver } from '@/util/bids';
-import { useRouter } from 'next/navigation';
-import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
+import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { format } from 'date-fns';
 
-
+import { Button } from './ui/button';
+import { formatToDollar } from '@/util/currency';
+import { isBidOver } from '@/util/bids';
+import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
 
 interface Item {
   id: number;
   name: string;
   fileKey: string;
   startingPrice: number;
-  endDate: Date // ✅
+  endDate: Date;
 }
 
 interface ItemCardProps {
@@ -27,6 +26,11 @@ interface ItemCardProps {
 
 export default function ItemCard({ item, index }: ItemCardProps) {
   const router = useRouter();
+  const params = useParams();
+  const locale = params.locale as 'hu' | 'en';
+
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const imageUrl = getCloudinaryImageUrl(item.fileKey);
 
@@ -34,8 +38,23 @@ export default function ItemCard({ item, index }: ItemCardProps) {
     ...item,
     endDate: new Date(item.endDate),
   });
-  const { data: session } = useSession();
-  const user = session?.user;
+
+  const t = {
+    starting: locale === 'hu' ? 'Kezdő ár' : 'Starting price',
+    ends: locale === 'hu' ? 'Lejár' : 'Ends on',
+    over: locale === 'hu' ? 'Licit lezárva' : 'Bidding is Over',
+    place: locale === 'hu' ? 'Licitálás' : 'Place a Bid',
+    view: locale === 'hu' ? 'Megtekintés' : 'View Bid',
+    deleteConfirm:
+      locale === 'hu'
+        ? 'Biztosan törölni szeretnéd ezt a tételt?'
+        : 'Are you sure you want to delete this item?',
+    deleteError:
+      locale === 'hu'
+        ? 'Hiba történt törlés közben'
+        : 'Something went wrong while deleting',
+    deleteLabel: locale === 'hu' ? 'Törlés' : 'Delete Item',
+  };
 
   return (
     <div className="border rounded-xl p-6 flex flex-col justify-between bg-white dark:bg-gray-800">
@@ -55,46 +74,50 @@ export default function ItemCard({ item, index }: ItemCardProps) {
         <div className="font-semibold text-lg">{item.name}</div>
 
         <div className="text-gray-600">
-          Starting price: ${formatToDollar(item.startingPrice)}
+          {t.starting}: ${formatToDollar(item.startingPrice)}
         </div>
 
         <div className="text-gray-600">
           {biddingOver
-            ? 'Bidding is Over'
-            : `Ends on: ${format(new Date(item.endDate), 'eeee, MMM d, yyyy')}`}
+            ? t.over
+            : `${t.ends}: ${format(
+                new Date(item.endDate),
+                'eeee, MMM d, yyyy',
+              )}`}
         </div>
 
         {user && user.role === 'admin' && (
           <Button
             variant="destructive"
             onClick={async () => {
-              if (!confirm('Are you sure you want to delete this item?'))
-                return;
+              if (!confirm(t.deleteConfirm)) return;
 
-              const res = await fetch(`/api/items/${item.id}`, {
-                method: 'DELETE',
-              });
+              try {
+                const res = await fetch(`/api/items/${item.id}`, {
+                  method: 'DELETE',
+                });
 
-              if (res.ok) {
+                if (!res.ok) {
+                  const data = await res.json();
+                  throw new Error(data.error);
+                }
+
                 router.refresh();
-                router.push('/');
-              } else {
-                const data = await res.json();
-                alert(data.error);
+              } catch {
+                alert(t.deleteError);
               }
             }}
           >
-            Delete Item
+            {t.deleteLabel}
           </Button>
         )}
 
         <Button asChild variant={biddingOver ? 'outline' : 'default'}>
-          <Link href={`/items/${item.id}`}>
-            {biddingOver ? 'View Bid' : 'Place a Bid'}
+          <Link href={`/${locale}/items/${item.id}`}>
+            {biddingOver ? t.view : t.place}
           </Link>
         </Button>
       </div>
     </div>
   );
 }
-

@@ -1,7 +1,7 @@
 'use server';
 
 import { bids, items } from '@/db/schema';
-import { auth } from '../../../../auth';
+import { auth } from '../../../../../auth';
 import { database } from '@/db/database';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
@@ -11,7 +11,7 @@ import { isBidOver } from '@/util/bids';
 
 const knock = new Knock({ apiKey: env.KNOCK_SECRET_KEY });
 
-export async function createBidAction(itemId: number) {
+export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
   const session = await auth();
   if (!session) {
     throw new Error('User must be authenticated to place a bid.');
@@ -31,14 +31,14 @@ export async function createBidAction(itemId: number) {
   }
 
   if (isBidOver(item)) {
-    throw new Error('Bidding period is over for this item.')
+    throw new Error('Bidding period is over for this item.');
   }
 
   // 💰 Обчислюємо нову ставку
-  
+
   const latestBidValue = item.currentBid
     ? item.currentBid + item.bidInterval // існуюча ставка + крок
-    : item.startingPrice;  
+    : item.startingPrice;
 
   await database.insert(bids).values({
     amount: latestBidValue,
@@ -72,8 +72,8 @@ export async function createBidAction(itemId: number) {
             name: b.user.name ?? 'Anonymous',
             email: b.user.email ?? 'unknown@example.com',
           },
-        ])
-    ).values()
+        ]),
+    ).values(),
   );
 
   console.log('Recipients:', recipients);
@@ -97,5 +97,5 @@ export async function createBidAction(itemId: number) {
   }
 
   // 🔁 Оновлення сторінки товару
-  revalidatePath(`/items/${itemId}`);
+  revalidatePath(`/${locale}/items/${itemId}`);
 }

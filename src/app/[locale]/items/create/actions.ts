@@ -3,21 +3,19 @@
 import { cloudinary } from '@/lib/cloudinary';
 import { database } from '@/db/database';
 import { items } from '@/db/schema';
-import { auth } from '../../../../auth';
+import { auth } from '../../../../../auth';
 import { redirect } from 'next/navigation';
 import type { UploadApiResponse } from 'cloudinary';
 
-export async function createItemActions({
-  file,
-  name,
-  startingPrice,
-  endDate,
-}: {
-  file: File;
-  name: string;
-  startingPrice: number;
-  endDate: Date;
-}) {
+export async function createItemActions(
+  locale: 'hu' | 'en',
+  data: {
+    file: File;
+    name: string;
+    startingPrice: number;
+    endDate: Date;
+  },
+) {
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
@@ -25,7 +23,7 @@ export async function createItemActions({
   }
 
   // Конвертуємо File у Buffer
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const buffer = Buffer.from(await data.file.arrayBuffer());
 
   const uploadResult = await new Promise<UploadApiResponse>(
     (resolve, reject) => {
@@ -45,15 +43,14 @@ export async function createItemActions({
     },
   );
 
-  // Зберігаємо public_id у базу
   await database.insert(items).values({
-    name,
-    startingPrice,
-    fileKey: uploadResult.public_id, // 👈 це буде ключ для відображення
+    name: data.name,
+    startingPrice: data.startingPrice,
+    fileKey: uploadResult.public_id,
     userId: session.user.id,
-    endDate,
+    endDate: data.endDate,
   });
 
-  redirect('/');
+  redirect(`/${locale}`);
 }
 

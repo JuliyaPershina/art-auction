@@ -7,7 +7,8 @@ import {
   pictures,
   blogPostPictures,
 } from '@/db/schema';
-import { auth } from '../../../../../auth';
+import { auth } from '../../../../../../auth';
+
 import { redirect } from 'next/navigation';
 import type { UploadApiResponse } from 'cloudinary';
 import slugify from 'slugify';

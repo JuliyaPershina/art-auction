@@ -4,14 +4,14 @@ import { pageTitleStyles } from '@/styles';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { auth } from '../../../../../auth';
+import { auth } from '../../../../../../auth';
 import { deleteBlogPostAction } from './deleteBlogPostAction';
 import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
 import Gallery from './Gallery';
 import { Metadata } from 'next';
 
 interface BlogPostPageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: 'hu' | 'en'; slug: string }>;
 }
 
 // 🔥 SEO metadata
@@ -41,7 +41,7 @@ export async function generateMetadata({
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
 
   const post = await getBlogPostBySlug(slug);
   const session = await auth();
@@ -63,7 +63,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <div className="space-y-6 min-w-0">
           <div className="pb-6">
             <Button asChild variant="outline">
-              <Link href="/blog">← Back to blog</Link>
+              <Link href={`/${locale}/blog`}>← Back to blog</Link>
             </Button>
           </div>
           <h1 className={pageTitleStyles}>{post.title}</h1>

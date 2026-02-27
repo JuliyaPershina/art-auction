@@ -3,7 +3,7 @@
 import { database } from '@/db/database';
 import { blogPosts } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { auth } from '../../../../../auth';
+import { auth } from '../../../../../../auth';
 import { redirect } from 'next/navigation';
 
 export async function updateBlogPostAction(formData: FormData) {

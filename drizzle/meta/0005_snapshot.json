@@ -1,6 +1,6 @@
 {
-  "id": "c78bc727-af78-49f0-a2d0-69d7643cda10",
-  "prevId": "2d7f9891-2519-4295-8306-6a3ae011dfef",
+  "id": "3ffa0360-d066-4b60-8c47-bf64e4ad03a8",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -91,91 +91,16 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.bb_authenticator": {
-      "name": "bb_authenticator",
-      "schema": "",
-      "columns": {
-        "credentialID": {
-          "name": "credentialID",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "userId": {
-          "name": "userId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "providerAccountId": {
-          "name": "providerAccountId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "credentialPublicKey": {
-          "name": "credentialPublicKey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "counter": {
-          "name": "counter",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "credentialDeviceType": {
-          "name": "credentialDeviceType",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "credentialBackedUp": {
-          "name": "credentialBackedUp",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "transports": {
-          "name": "transports",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "bb_authenticator_userId_bb_user_id_fk": {
-          "name": "bb_authenticator_userId_bb_user_id_fk",
-          "tableFrom": "bb_authenticator",
-          "tableTo": "bb_user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "bb_authenticator_credentialID_unique": {
-          "name": "bb_authenticator_credentialID_unique",
-          "nullsNotDistinct": false,
+      "compositePrimaryKeys": {
+        "bb_account_provider_providerAccountId_pk": {
+          "name": "bb_account_provider_providerAccountId_pk",
           "columns": [
-            "credentialID"
+            "provider",
+            "providerAccountId"
           ]
         }
       },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -251,83 +176,18 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.bb_blog_post_picture": {
-      "name": "bb_blog_post_picture",
+    "public.bb_blog_post_translation": {
+      "name": "bb_blog_post_translation",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
         "postId": {
           "name": "postId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "pictureId": {
-          "name": "pictureId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "order": {
-          "name": "order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "bb_blog_post_picture_postId_bb_blog_post_id_fk": {
-          "name": "bb_blog_post_picture_postId_bb_blog_post_id_fk",
-          "tableFrom": "bb_blog_post_picture",
-          "tableTo": "bb_blog_post",
-          "columnsFrom": [
-            "postId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "bb_blog_post_picture_pictureId_bb_picture_id_fk": {
-          "name": "bb_blog_post_picture_pictureId_bb_picture_id_fk",
-          "tableFrom": "bb_blog_post_picture",
-          "tableTo": "bb_picture",
-          "columnsFrom": [
-            "pictureId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.bb_blog_post": {
-      "name": "bb_blog_post",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "authorId": {
-          "name": "authorId",
+        "languageCode": {
+          "name": "languageCode",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -346,6 +206,66 @@
         },
         "content": {
           "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bb_blog_post_translation_postId_bb_blog_post_id_fk": {
+          "name": "bb_blog_post_translation_postId_bb_blog_post_id_fk",
+          "tableFrom": "bb_blog_post_translation",
+          "tableTo": "bb_blog_post",
+          "columnsFrom": [
+            "postId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bb_blog_post_translation_languageCode_bb_language_code_fk": {
+          "name": "bb_blog_post_translation_languageCode_bb_language_code_fk",
+          "tableFrom": "bb_blog_post_translation",
+          "tableTo": "bb_language",
+          "columnsFrom": [
+            "languageCode"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "bb_blog_post_translation_postId_languageCode_pk": {
+          "name": "bb_blog_post_translation_postId_languageCode_pk",
+          "columns": [
+            "postId",
+            "languageCode"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.bb_blog_post": {
+      "name": "bb_blog_post",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "authorId": {
+          "name": "authorId",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -420,6 +340,72 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.bb_item_translation": {
+      "name": "bb_item_translation",
+      "schema": "",
+      "columns": {
+        "itemId": {
+          "name": "itemId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "languageCode": {
+          "name": "languageCode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bb_item_translation_itemId_bb_item_id_fk": {
+          "name": "bb_item_translation_itemId_bb_item_id_fk",
+          "tableFrom": "bb_item_translation",
+          "tableTo": "bb_item",
+          "columnsFrom": [
+            "itemId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bb_item_translation_languageCode_bb_language_code_fk": {
+          "name": "bb_item_translation_languageCode_bb_language_code_fk",
+          "tableFrom": "bb_item_translation",
+          "tableTo": "bb_language",
+          "columnsFrom": [
+            "languageCode"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "bb_item_translation_itemId_languageCode_pk": {
+          "name": "bb_item_translation_itemId_languageCode_pk",
+          "columns": [
+            "itemId",
+            "languageCode"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.bb_item": {
       "name": "bb_item",
       "schema": "",
@@ -432,12 +418,6 @@
         },
         "userId": {
           "name": "userId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -498,78 +478,13 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.bb_picture": {
-      "name": "bb_picture",
+    "public.bb_language": {
+      "name": "bb_language",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "userId": {
-          "name": "userId",
+        "code": {
+          "name": "code",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fileKey": {
-          "name": "fileKey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'art'"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "bb_picture_userId_bb_user_id_fk": {
-          "name": "bb_picture_userId_bb_user_id_fk",
-          "tableFrom": "bb_picture",
-          "tableTo": "bb_user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.playing_with_neon": {
-      "name": "playing_with_neon",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
@@ -577,13 +492,7 @@
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
-        },
-        "value": {
-          "name": "value",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -722,7 +631,15 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "bb_verificationToken_identifier_token_pk": {
+          "name": "bb_verificationToken_identifier_token_pk",
+          "columns": [
+            "identifier",
+            "token"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
