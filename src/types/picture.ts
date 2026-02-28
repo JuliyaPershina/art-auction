@@ -1,11 +1,4 @@
-// export interface Picture {
-//   id: number;
-//   fileKey: string;
-//   name: string | null;
-//   type: string;
-// }
-
-interface PictureTranslation {
+export interface PictureTranslation {
   languageCode: 'en' | 'hu';
   name: string;
 }

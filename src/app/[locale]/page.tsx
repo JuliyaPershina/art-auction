@@ -3,21 +3,22 @@ import { auth } from '../../../auth';
 import Hero from '@/components/Hero';
 import GalleryPage from '@/components/GalleryPage';
 import { desc } from 'drizzle-orm';
+import type { Picture } from '@/types/picture';
 
-interface PictureTranslation {
-  languageCode: 'en' | 'hu';
-  name: string;
-}
+// interface PictureTranslation {
+//   languageCode: 'en' | 'hu';
+//   name: string;
+// }
 
-export interface Picture {
-  id: number;
-  fileKey: string;
-  type: string;
-  translations: PictureTranslation[];
-  name?: string | null;
-  userId: string;
-  createdAt: Date | null;
-}
+// export interface Picture {
+//   id: number;
+//   fileKey: string;
+//   type: string;
+//   translations: PictureTranslation[];
+//   name?: string | null;
+//   userId: string;
+//   createdAt: Date | null;
+// }
 
 
 export default async function HomePage({
