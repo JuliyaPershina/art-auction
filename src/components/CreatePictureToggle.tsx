@@ -9,10 +9,23 @@ const CreatePictureForm = dynamic(
   { ssr: false },
 );
 
+const translations = {
+  en: {
+    open: 'Upload Picture',
+    close: 'Close Upload Form',
+  },
+  hu: {
+    open: 'Kép feltöltése',
+    close: 'Bezárás',
+  },
+};
+
 export default function CreatePictureToggle({
   onUpload,
+  locale,
 }: {
   onUpload: (picture: Picture) => void;
+  locale: 'en' | 'hu';
 }) {
   const [open, setOpen] = useState(false);
 
@@ -20,6 +33,7 @@ export default function CreatePictureToggle({
     onUpload(picture);
     setOpen(false); // 🔥 закриваємо форму після успішного аплоаду
   };
+  const t = translations[locale];
 
   return (
     <div className="flex flex-col items-center space-y-2">
@@ -27,10 +41,10 @@ export default function CreatePictureToggle({
         onClick={() => setOpen(!open)}
         className="bg-gray-900 self-start text-white px-4 py-2 rounded hover:bg-gray-800"
       >
-        {open ? 'Close Upload Form' : 'Upload Picture'}
+        {open ? t.close : t.open}
       </Button>
 
-      {open && <CreatePictureForm onUpload={handleUpload} />}
+      {open && <CreatePictureForm onUpload={handleUpload} locale={locale} />}
     </div>
   );
 }

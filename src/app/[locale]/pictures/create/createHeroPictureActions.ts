@@ -2,17 +2,20 @@
 
 import { database } from '@/db/database';
 import { pictures } from '@/db/schema';
-import { auth } from '../../../../auth';
+import { auth } from '../../../../../auth';
 import { cloudinary } from '@/lib/cloudinary';
 import type { UploadApiResponse } from 'cloudinary';
+import { pictureTranslations } from '@/db/schema';
 
 export async function createHeroPictureActions({
   file,
-  name,
+  nameEn,
+  nameHu,
   type = 'art',
 }: {
   file: File;
-  name?: string;
+  nameEn: string;
+  nameHu: string;
   type?: 'art' | 'blog' | 'other';
 }) {
   const session = await auth();
@@ -39,12 +42,25 @@ export async function createHeroPictureActions({
   const [newPicture] = await database
     .insert(pictures)
     .values({
-      name: name ?? null,
       fileKey: uploadResult.public_id,
       userId: session.user.id,
       type,
     })
     .returning();
 
-  return newPicture; // 🔥 повертаємо нову картинку
+  // 🔥 Додаємо переклади
+  await database.insert(pictureTranslations).values([
+    {
+      pictureId: newPicture.id,
+      languageCode: 'en',
+      name: nameEn,
+    },
+    {
+      pictureId: newPicture.id,
+      languageCode: 'hu',
+      name: nameHu,
+    },
+  ]);
+
+  return newPicture;
 }

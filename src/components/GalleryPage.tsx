@@ -1,49 +1,66 @@
 'use client';
 
 import { useState } from 'react';
-import { deletePicture } from '@/app/pictures/[pictureId]/actions';
-import CreatePictureForm from './CreatePictureForm';
-import PictureGallery from './PictureGallery';
-import { Picture } from '@/types/picture';
+import { deletePicture } from '@/app/[locale]/pictures/[pictureId]/actions';
 import CreatePictureToggle from './CreatePictureToggle';
+import PictureGallery from './PictureGallery';
+
+interface PictureTranslation {
+  languageCode: 'en' | 'hu';
+  name: string;
+}
+
+export interface Picture {
+  id: number;
+  fileKey: string;
+  type: string;
+  translations: PictureTranslation[];
+}
 
 interface Props {
   initialPictures: Picture[];
   isAdmin?: boolean;
+  locale: 'en' | 'hu';
 }
 
-export default function GalleryPage({ initialPictures, isAdmin }: Props) {
-  const [pictures, setPictures] = useState<Picture[]>(initialPictures);
+const translations = {
+  en: { deleteFailed: 'Delete failed' },
+  hu: { deleteFailed: 'Törlés sikertelen' },
+};
 
-  // ➕ ДОДАВАННЯ (в початок)
+export default function GalleryPage({
+  initialPictures,
+  isAdmin,
+  locale,
+}: Props) {
+  const [pictures, setPictures] = useState<Picture[]>(initialPictures);
+  const t = translations[locale];
+
   const handleAdd = (newPicture: Picture) => {
     setPictures((prev) => [newPicture, ...prev]);
   };
 
-  // ❌ OPTIMISTIC DELETE
   const handleDelete = async (id: number) => {
     const previous = pictures;
-
-    // одразу видаляємо з UI
     setPictures((prev) => prev.filter((p) => p.id !== id));
 
     try {
-      await deletePicture(id);
-    } catch (error) {
-      // якщо сервер впав — повертаємо назад
+      await deletePicture(id, locale);
+    } catch {
       setPictures(previous);
-      alert('Delete failed');
+      alert(t.deleteFailed);
     }
   };
 
   return (
     <div className="space-y-10">
-      {isAdmin && <CreatePictureToggle onUpload={handleAdd} />}
+      {isAdmin && <CreatePictureToggle onUpload={handleAdd} locale={locale} />}
 
       <PictureGallery
         pictures={pictures}
         isAdmin={isAdmin}
         onDelete={handleDelete}
+        locale={locale}
       />
     </div>
   );

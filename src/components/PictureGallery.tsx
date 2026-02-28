@@ -5,64 +5,97 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
 import { Button } from '@/components/ui/button';
-import { Picture } from '@/types/picture';
+
+interface PictureTranslation {
+  languageCode: 'en' | 'hu';
+  name: string;
+}
+
+interface Picture {
+  id: number;
+  fileKey: string;
+  type: string;
+  translations: PictureTranslation[];
+}
 
 interface Props {
   pictures: Picture[];
   isAdmin?: boolean;
   onDelete?: (id: number) => void;
+  locale: 'en' | 'hu';
 }
+
+const translations = {
+  en: {
+    delete: 'Delete',
+    defaultAlt: 'Picture',
+  },
+  hu: {
+    delete: 'Törlés',
+    defaultAlt: 'Kép',
+  },
+};
 
 export default function PictureGallery({
   pictures,
   isAdmin,
   onDelete,
+  locale,
 }: Props) {
   const [selected, setSelected] = useState<Picture | null>(null);
+  const t = translations[locale];
+
+  const getName = (pic: Picture) => {
+    const translation = pic.translations?.find(
+      (tr) => tr.languageCode === locale,
+    );
+
+    return translation?.name ?? null;
+  };
 
   return (
     <>
-      {/* GRID */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <AnimatePresence>
-          {pictures.map((pic) => (
-            <motion.div
-              key={pic.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.25 }}
-              className="relative cursor-pointer"
-            >
-              <Image
-                src={getCloudinaryImageUrl(pic.fileKey)}
-                alt={pic.name ?? 'Picture'}
-                width={300}
-                height={300}
-                className="object-cover w-full h-64 rounded-xl shadow-md"
-                onClick={() => setSelected(pic)}
-              />
+          {pictures.map((pic) => {
+            const name = getName(pic);
 
-              {pic.name && (
-                <p className="mt-2 text-center font-medium">{pic.name}</p>
-              )}
+            return (
+              <motion.div
+                key={pic.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.25 }}
+                className="relative cursor-pointer"
+              >
+                <Image
+                  src={getCloudinaryImageUrl(pic.fileKey)}
+                  alt={name ?? t.defaultAlt}
+                  width={300}
+                  height={300}
+                  className="object-cover w-full h-64 rounded-xl shadow-md"
+                  onClick={() => setSelected(pic)}
+                />
 
-              {isAdmin && (
-                <Button
-                  onClick={() => onDelete?.(pic.id)}
-                  className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
-                >
-                  Delete
-                </Button>
-              )}
-            </motion.div>
-          ))}
+                {name && <p className="mt-2 text-center font-medium">{name}</p>}
+
+                {isAdmin && (
+                  <Button
+                    onClick={() => onDelete?.(pic.id)}
+                    className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                  >
+                    {t.delete}
+                  </Button>
+                )}
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
 
-      {/* MODAL */}
       <AnimatePresence>
         {selected && (
           <motion.div
@@ -80,7 +113,6 @@ export default function PictureGallery({
               transition={{ duration: 0.25 }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* CLOSE BUTTON */}
               <button
                 onClick={() => setSelected(null)}
                 className="absolute -top-4 -right-4 bg-red-600 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-xl hover:bg-red-700 transition"
@@ -88,19 +120,18 @@ export default function PictureGallery({
                 ✕
               </button>
 
-              {/* IMAGE CONTAINER (ФІКС ВИСОТИ!) */}
               <div className="relative w-full h-[80vh]">
                 <Image
                   src={getCloudinaryImageUrl(selected.fileKey)}
-                  alt={selected.name ?? 'Picture'}
+                  alt={getName(selected) ?? t.defaultAlt}
                   fill
                   className="object-contain rounded-xl"
                 />
               </div>
 
-              {selected.name && (
+              {getName(selected) && (
                 <h2 className="mt-4 text-center text-lg font-semibold">
-                  {selected.name}
+                  {getName(selected)}
                 </h2>
               )}
             </motion.div>

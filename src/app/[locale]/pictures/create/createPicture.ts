@@ -2,7 +2,7 @@
 
 import { database } from '@/db/database';
 import { pictures } from '@/db/schema';
-import { auth } from '../../../../auth';
+import { auth } from '../../../../../auth';
 import { cloudinary } from '@/lib/cloudinary';
 import type { UploadApiResponse } from 'cloudinary';
 

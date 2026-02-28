@@ -2,6 +2,22 @@ import { database } from '@/db/database';
 import { auth } from '../../../auth';
 import Hero from '@/components/Hero';
 import GalleryPage from '@/components/GalleryPage';
+import { desc } from 'drizzle-orm';
+
+interface PictureTranslation {
+  languageCode: 'en' | 'hu';
+  name: string;
+}
+
+export interface Picture {
+  id: number;
+  fileKey: string;
+  type: string;
+  translations: PictureTranslation[];
+  name?: string | null;
+  userId: string;
+  createdAt: Date | null;
+}
 
 
 export default async function HomePage({
@@ -13,16 +29,34 @@ export default async function HomePage({
   const session = await auth();
 
   const allPictures = await database.query.pictures.findMany({
+    with: {
+      translations: true, // 🔥 це обов'язково
+    },
     where: (pic, { eq }) => eq(pic.type, 'art'),
     orderBy: (pic, { desc }) => [desc(pic.createdAt)],
   });
+
+  // 🔥 Приводимо типи до Picture[]
+  const pictures: Picture[] = allPictures.map((pic) => ({
+    ...pic,
+    translations: pic.translations
+      .filter((tr) => tr.languageCode === 'en' || tr.languageCode === 'hu')
+      .map((tr) => ({
+        name: tr.name,
+        languageCode: tr.languageCode as 'en' | 'hu',
+      })),
+  }));
 
   const isAdmin = session?.user.role === 'admin';
 
   return (
     <main className="space-y-8 p-4">
       <Hero locale={locale} />
-      <GalleryPage initialPictures={allPictures} isAdmin={isAdmin} />
+      <GalleryPage
+        initialPictures={pictures}
+        isAdmin={isAdmin}
+        locale={locale}
+      />
     </main>
   );
 }
