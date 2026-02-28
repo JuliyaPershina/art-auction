@@ -8,6 +8,7 @@ import { createHeroPictureActions } from '@/app/[locale]/pictures/create/createH
 import { pageTitleStyles } from '@/styles';
 import { Picture } from '@/types/picture';
 
+
 const MAX_FILE_SIZE = 1 * 1024 * 1024;
 
 const translations = {
@@ -127,7 +128,13 @@ export default function CreatePictureForm({
               type: 'art',
             });
 
-            onUpload(newPicture); // 🔥 передаємо в батька
+            onUpload({
+              ...newPicture,
+              translations: [
+                { name: nameEn, languageCode: 'en' },
+                { name: nameHu, languageCode: 'hu' },
+              ],
+            }); // 🔥 передаємо в батька
 
             form.reset();
             setPreview(null);
