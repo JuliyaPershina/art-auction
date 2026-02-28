@@ -49,17 +49,18 @@ import { ReactNode } from 'react';
 type Locale = 'hu' | 'en';
 const localeFallback: Locale = 'en';
 
-// Гард для перевірки допустимих локалей
 const isLocale = (l: string): l is Locale => l === 'hu' || l === 'en';
 
-type LayoutProps = {
-  children: ReactNode;
-  params: { locale: string }; // Next.js надає params як object, не Promise
-};
+/* -------------------- METADATA -------------------- */
 
-// Генерація метаданих
-export function generateMetadata({ params }: LayoutProps): Metadata {
-  const locale = isLocale(params.locale) ? params.locale : localeFallback;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+
+  const locale = isLocale(rawLocale) ? rawLocale : localeFallback;
 
   return {
     alternates: {
@@ -79,9 +80,18 @@ export function generateMetadata({ params }: LayoutProps): Metadata {
   };
 }
 
-// Основний layout
-export default function LocaleLayout({ children, params }: LayoutProps) {
-  const locale = isLocale(params.locale) ? params.locale : localeFallback;
+/* -------------------- LAYOUT -------------------- */
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: rawLocale } = await params;
+
+  const locale = isLocale(rawLocale) ? rawLocale : localeFallback;
 
   return (
     <>
