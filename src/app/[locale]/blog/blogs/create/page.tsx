@@ -1,19 +1,16 @@
 'use client';
+
 import { pageTitleStyles } from '@/styles';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { createBlogPostAction } from './createBlogPostAction';
 import { useState } from 'react';
 import Image from 'next/image';
+import { useParams } from 'next/navigation';
 
-const MAX_SIZE = 1 * 1024 * 1024; // 1MB
-
-function formatSize(bytes: number) {
-  return (bytes / 1024 / 1024).toFixed(2) + ' MB';
-}
+const MAX_SIZE = 1 * 1024 * 1024;
 
 export default function CreateBlogPage() {
+  const { locale } = useParams() as { locale: 'en' | 'hu' };
+
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [galleryPreview, setGalleryPreview] = useState<string[]>([]);
   const [error, setError] = useState('');
@@ -21,7 +18,7 @@ export default function CreateBlogPage() {
 
   function validateFile(file: File) {
     if (file.size > MAX_SIZE) {
-      return `File ${file.name} is too large (${formatSize(file.size)}). Max 1MB`;
+      return `File ${file.name} is too large (max 1MB)`;
     }
     return null;
   }
@@ -34,7 +31,6 @@ export default function CreateBlogPage() {
     const validationError = validateFile(file);
     if (validationError) {
       setError(validationError);
-      setCoverPreview(null);
       return;
     }
 
@@ -44,13 +40,13 @@ export default function CreateBlogPage() {
   function handleGalleryChange(e: React.ChangeEvent<HTMLInputElement>) {
     setError('');
     const files = Array.from(e.target.files || []);
+
     const previews: string[] = [];
 
     for (const file of files) {
       const validationError = validateFile(file);
       if (validationError) {
         setError(validationError);
-        setGalleryPreview([]);
         return;
       }
       previews.push(URL.createObjectURL(file));
@@ -66,82 +62,81 @@ export default function CreateBlogPage() {
       setIsSubmitting(true);
       await createBlogPostAction(formData);
     } catch (err: any) {
-      setError(err.message || 'Upload failed');
+      setError(err.message ?? 'Upload failed');
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  const isDisabled = !!error || isSubmitting;
   return (
     <main className="space-y-8 px-6 pb-16 pt-6">
       <h1 className={pageTitleStyles}>Create Blog Post</h1>
 
       <form action={handleSubmit} className="space-y-6 max-w-2xl">
-        {error && <div className="text-red-500 text-sm">{error}</div>}
-        <Input name="title" placeholder="Post title" required />
-
-        <Textarea name="excerpt" placeholder="Short description" rows={3} />
-
-        <Textarea
-          name="content"
-          placeholder="Full article content"
-          rows={10}
-          required
-        />
+        <input type="hidden" name="locale" value={locale} />
 
         {error && (
-          <div className="text-red-500 text-sm bg-red-100 p-3 rounded">
-            {error}
-          </div>
+          <div className="text-red-500 text-sm">{error}</div>
         )}
 
-        {/* Cover */}
+        <input name="titleEn" placeholder="Title (English)" required />
+        <input name="titleHu" placeholder="Title (Hungarian)" required />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium ">Cover Image</label>
+        <textarea name="excerptEn" placeholder="Excerpt (English)" rows={3} />
+        <textarea name="excerptHu" placeholder="Excerpt (Hungarian)" rows={3} />
+
+        <textarea
+          name="contentEn"
+          placeholder="Content (English)"
+          required
+          rows={10}
+        />
+        <textarea
+          name="contentHu"
+          placeholder="Content (Hungarian)"
+          required
+          rows={10}
+        />
+
+        <div>
+          <label>Cover Image</label>
           <input
             type="file"
             name="coverImage"
             accept="image/*"
             onChange={handleCoverChange}
-            className="w-full px-3 mt-2 py-2 border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-stone-300 focus:border-stone-300"
           />
+
           {coverPreview && (
-            <div className="mt-3">
-              <Image
-                src={coverPreview}
-                alt="Cover preview"
-                width={300}
-                height={200}
-                className="rounded-lg object-cover"
-                unoptimized
-              />
-            </div>
+            <Image
+              src={coverPreview}
+              alt="Preview"
+              width={300}
+              height={200}
+              unoptimized
+            />
           )}
         </div>
 
-        {/* Gallery */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Gallery Images</label>
+        <div>
+          <label>Gallery Images</label>
           <input
             type="file"
             name="images"
             accept="image/*"
             multiple
             onChange={handleGalleryChange}
-            className="w-full px-3 mt-2 py-2 border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-stone-300 focus:border-stone-300"
           />
+
           {galleryPreview.length > 0 && (
             <div className="grid grid-cols-3 gap-3 mt-3">
-              {galleryPreview.map((src, index) => (
+              {galleryPreview.map((src, i) => (
                 <Image
-                  key={index}
+                  key={i}
                   src={src}
                   alt="Preview"
                   width={150}
                   height={100}
-                  className="rounded object-cover"
                   unoptimized
                 />
               ))}
@@ -151,12 +146,8 @@ export default function CreateBlogPage() {
 
         <button
           type="submit"
-          disabled={isDisabled}
-          className={`px-6 py-2 rounded-md text-white ${
-            isDisabled
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-black hover:bg-gray-800'
-          }`}
+          disabled={isSubmitting}
+          className="px-6 py-2 bg-black text-white rounded"
         >
           {isSubmitting ? 'Uploading...' : 'Create Post'}
         </button>

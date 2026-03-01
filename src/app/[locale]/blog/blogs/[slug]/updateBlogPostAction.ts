@@ -1,32 +1,61 @@
 'use server';
 
 import { database } from '@/db/database';
-import { blogPosts } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { blogPostTranslations } from '@/db/schema';
+import { eq, and } from 'drizzle-orm';
 import { auth } from '../../../../../../auth';
 import { redirect } from 'next/navigation';
 
 export async function updateBlogPostAction(formData: FormData) {
   const session = await auth();
-
   if (!session || session.user.role !== 'admin') {
     throw new Error('Forbidden');
   }
 
-  const id = Number(formData.get('id'));
-  const title = formData.get('title') as string;
-  const excerpt = formData.get('excerpt') as string;
-  const content = formData.get('content') as string;
+  const id = Number(formData.get('postId'));
+  const locale = formData.get('locale') as 'en' | 'hu';
 
+  const titleEn = formData.get('titleEn') as string;
+  const excerptEn = formData.get('excerptEn') as string;
+  const contentEn = formData.get('contentEn') as string;
+
+  const titleHu = formData.get('titleHu') as string;
+  const excerptHu = formData.get('excerptHu') as string;
+  const contentHu = formData.get('contentHu') as string;
+
+  if (!id || !locale || !titleEn || !contentEn || !titleHu || !contentHu) {
+    throw new Error('Missing required fields');
+  }
+
+  // EN
   await database
-    .update(blogPosts)
+    .update(blogPostTranslations)
     .set({
-      title,
-      excerpt,
-      content,
-      updatedAt: new Date(),
+      title: titleEn,
+      excerpt: excerptEn,
+      content: contentEn,
     })
-    .where(eq(blogPosts.id, id));
+    .where(
+      and(
+        eq(blogPostTranslations.postId, id),
+        eq(blogPostTranslations.languageCode, 'en'),
+      ),
+    );
 
-  redirect('/blog');
+  // HU
+  await database
+    .update(blogPostTranslations)
+    .set({
+      title: titleHu,
+      excerpt: excerptHu,
+      content: contentHu,
+    })
+    .where(
+      and(
+        eq(blogPostTranslations.postId, id),
+        eq(blogPostTranslations.languageCode, 'hu'),
+      ),
+    );
+
+  redirect(`/${locale}/blog`);
 }

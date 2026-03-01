@@ -217,11 +217,11 @@ export const blogPosts = pgTable('bb_blog_post', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
 
-  title: text('title').notNull(),
+  // title: text('title').notNull(),
 
-  excerpt: text('excerpt'), // короткий опис для лєнти
+  // excerpt: text('excerpt'), // короткий опис для лєнти
 
-  content: text('content').notNull(),
+  // content: text('content').notNull(),
   // довгий текст (markdown або HTML)
 
   slug: text('slug').notNull().unique(),
@@ -297,6 +297,7 @@ export const blogPostsRelations = relations(blogPosts, ({ one, many }) => ({
     fields: [blogPosts.authorId],
     references: [users.id],
   }),
+  translations: many(blogPostTranslations),
   images: many(blogPostPictures),
 }));
 

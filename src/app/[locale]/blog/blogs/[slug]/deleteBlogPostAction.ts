@@ -7,7 +7,7 @@ import { auth } from '../../../../../../auth';
 import { redirect } from 'next/navigation';
 import { deleteImageFromCloudinary } from '@/lib/cloudinary';
 
-export async function deleteBlogPostAction(id: number) {
+export async function deleteBlogPostAction(id: number, locale: 'en' | 'hu') {
   const session = await auth();
 
   if (!session || session.user.role !== 'admin') {
@@ -51,6 +51,6 @@ export async function deleteBlogPostAction(id: number) {
   // 🔹 5. Видалити пост
   await database.delete(blogPosts).where(eq(blogPosts.id, id));
 
-  redirect('/blog');
+  redirect(`/${locale}/blog`);
 }
 

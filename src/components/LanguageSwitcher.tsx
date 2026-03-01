@@ -20,24 +20,6 @@ export function LanguageSwitcher() {
     router.push('/' + segments.join('/'));
   };
 
-  // return (
-  //   <div className=" flex gap-2 bg-transparent backdrop-blur px-3 pt-2 ">
-  //     <button
-  //       className="text-sm font-medium cursor-pointer text-stone-600 dark:text-gray-200 hover:text-stone-900 dark:hover:text-gray-400 transition"
-  //       onClick={() => switchLanguage('hu')}
-  //     >
-  //       <div className='w-5 h-3'><img src="/assets/hu.svg" alt="HU" className="caver" /></div>
-  //       HU
-  //     </button>
-  //     <button
-  //       className="text-sm font-medium cursor-pointer text-stone-600 dark:text-gray-200 hover:text-stone-900 dark:hover:text-gray-400 transition"
-  //       onClick={() => switchLanguage('en')}
-  //     >
-  //       <img src="/assets/uk.svg" alt="EN" className="w-5 h-5" />
-  //       EN
-  //     </button>
-  //   </div>
-  // );
 
   return (
     <div className="flex justify-center gap-1 px-1 pt-1.5">
