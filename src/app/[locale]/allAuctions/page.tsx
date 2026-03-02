@@ -10,7 +10,12 @@ export default async function HomePage({
 }) {
   const { locale } = await params; // 🔥 ВАЖЛИВО
   const session = await auth();
-  const allitems = await database.query.items.findMany();
+  // const allitems = await database.query.items.findMany();
+  const allitems = await database.query.items.findMany({
+    with: {
+      translations: true,
+    },
+  });
 
   const t = {
     title: locale === 'hu' ? 'Eladó tételek' : 'Items For Sale',
@@ -24,11 +29,22 @@ export default async function HomePage({
         : 'Sign in to place a bid.',
   };
 
+  const items = allitems.map((item) => {
+    const translation =
+      item.translations.find((t) => t.languageCode === locale) ||
+      item.translations.find((t) => t.languageCode === 'en');
+
+    return {
+      ...item,
+      name: translation?.name ?? 'Untitled',
+    };
+  });
+
   return (
-    <main className="space-y-8">
+    <main className="space-y-8 m-8">
       <h1 className={pageTitleStyles}>{t.title}</h1>
 
-      <ItemList items={allitems} />
+      <ItemList items={items} />
 
       {session?.user ? (
         <div className="text-right">

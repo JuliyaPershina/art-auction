@@ -81,13 +81,19 @@ export default async function ItemPage({
     by: locale === 'hu' ? 'által' : 'by',
   };
 
+  const translation =
+    item.translations.find((t) => t.languageCode === locale) ||
+    item.translations.find((t) => t.languageCode === 'en');
+
+  const name = translation?.name ?? 'Untitled';
+
   return (
     <main className="space-y-8 p-8">
       <div className="flex flex-wrap gap-8">
         <div className="space-y-8">
           <h1 className={pageTitleStyles}>
-            <span className="font-normal">{t.auctionFor} :</span> <br />
-            {item.name}
+            <span className="font-normal">{t.auctionFor} </span> <br />
+            {name}
           </h1>
           {isBiddingOver && (
             <Badge className="w-fit" variant={'destructive'}>
@@ -99,7 +105,7 @@ export default async function ItemPage({
           <div className="flex flex-col gap-4">
             <Image
               src={imageUrl}
-              alt={item.name}
+              alt={name}
               width={200}
               height={200}
               className="w-75 h-75 rounded-xl shadow-lg object-cover"

@@ -30,7 +30,7 @@ export default async function MyAuctionPage({
     };
 
     return (
-      <main className="space-y-8">
+      <main className="space-y-8 m-8 " >
         <h1 className={pageTitleStyles}>{t.title}</h1>
         {hasItems ? <ItemList items={allitems} /> : <EmptyState params={params} />}
       </main>
