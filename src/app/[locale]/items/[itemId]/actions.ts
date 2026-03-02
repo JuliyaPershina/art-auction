@@ -22,8 +22,15 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
     throw new Error('You must be logged in to place a bid.');
   }
 
+  // const item = await database.query.items.findFirst({
+  //   where: eq(items.id, itemId),
+  // });
+
   const item = await database.query.items.findFirst({
     where: eq(items.id, itemId),
+    with: {
+      translations: true,
+    },
   });
 
   if (!item) {
@@ -33,6 +40,13 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
   if (isBidOver(item)) {
     throw new Error('Bidding period is over for this item.');
   }
+  
+  const translation =
+    item.translations.find((t) => t.languageCode === locale) ||
+    item.translations.find((t) => t.languageCode === 'en');
+
+  const itemName = translation?.name ?? 'Untitled';
+
 
   // 💰 Обчислюємо нову ставку
 
@@ -90,7 +104,7 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
       recipients,
       data: {
         itemId,
-        itemName: item.name,
+        itemName,
         amount: latestBidValue,
       },
     });

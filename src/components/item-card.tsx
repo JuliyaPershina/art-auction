@@ -29,6 +29,7 @@ export default function ItemCard({ item, index }: ItemCardProps) {
   const params = useParams();
   const locale = params.locale as 'hu' | 'en';
 
+
   const { data: session } = useSession();
   const user = session?.user;
 
