@@ -120,5 +120,5 @@ export async function createItemActions(
     },
   ]);
 
-  redirect(`/${locale}`);
+  redirect(`/${locale}/allAuctions`);
 }

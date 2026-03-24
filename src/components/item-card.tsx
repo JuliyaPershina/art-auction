@@ -58,7 +58,7 @@ export default function ItemCard({ item, index }: ItemCardProps) {
   };
 
   return (
-    <div className="border rounded-xl p-6 flex flex-col justify-between bg-white dark:bg-gray-800">
+    <div className="border rounded-xl p-6 flex flex-col bg-white dark:bg-gray-800">
       <div className="w-full aspect-square overflow-hidden rounded-lg mb-4">
         <Image
           src={imageUrl}
@@ -87,37 +87,39 @@ export default function ItemCard({ item, index }: ItemCardProps) {
               )}`}
         </div>
 
-        {user && user.role === 'admin' && (
-          <Button
-            variant="destructive"
-            onClick={async () => {
-              if (!confirm(t.deleteConfirm)) return;
+        <div className="mt-auto flex flex-col space-y-2">
+          {user && user.role === 'admin' && (
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (!confirm(t.deleteConfirm)) return;
 
-              try {
-                const res = await fetch(`/api/items/${item.id}`, {
-                  method: 'DELETE',
-                });
+                try {
+                  const res = await fetch(`/api/items/${item.id}`, {
+                    method: 'DELETE',
+                  });
 
-                if (!res.ok) {
-                  const data = await res.json();
-                  throw new Error(data.error);
+                  if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error);
+                  }
+
+                  router.refresh();
+                } catch {
+                  alert(t.deleteError);
                 }
+              }}
+            >
+              {t.deleteLabel}
+            </Button>
+          )}
 
-                router.refresh();
-              } catch {
-                alert(t.deleteError);
-              }
-            }}
-          >
-            {t.deleteLabel}
+          <Button asChild variant={biddingOver ? 'outline' : 'default'}>
+            <Link href={`/${locale}/items/${item.id}`}>
+              {biddingOver ? t.view : t.place}
+            </Link>
           </Button>
-        )}
-
-        <Button asChild variant={biddingOver ? 'outline' : 'default'}>
-          <Link href={`/${locale}/items/${item.id}`}>
-            {biddingOver ? t.view : t.place}
-          </Link>
-        </Button>
+        </div>
       </div>
     </div>
   );

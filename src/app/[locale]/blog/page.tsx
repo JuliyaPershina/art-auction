@@ -130,7 +130,7 @@ export default async function BlogPage({
                         )}
 
                         <div className="text-sm text-muted-foreground">
-                          By {post.author?.name ?? 'Anonymous'} •{' '}
+                          {/* By {post.author?.name ?? 'Anonymous'} •{' '} */}
                           {format(post.publishedAt, 'PPP')}
                         </div>
                       </div>

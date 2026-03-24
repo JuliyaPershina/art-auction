@@ -2,20 +2,23 @@ import { database } from '@/db/database';
 import { auth } from '../../../../auth';
 import ItemList from '@/components/item-list';
 import { pageTitleStyles } from '@/styles';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 export default async function HomePage({
   params,
 }: {
   params: Promise<{ locale: 'hu' | 'en' }>;
 }) {
-  const { locale } = await params; // 🔥 ВАЖЛИВО
+  const { locale } = await params;
   const session = await auth();
-  // const allitems = await database.query.items.findMany();
   const allitems = await database.query.items.findMany({
     with: {
       translations: true,
     },
   });
+
+  const user = session?.user;
 
   const t = {
     title: locale === 'hu' ? 'Eladó tételek' : 'Items For Sale',
@@ -42,19 +45,48 @@ export default async function HomePage({
 
   return (
     <main className="space-y-8 m-8">
-      <h1 className={pageTitleStyles}>{t.title}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className={pageTitleStyles}>{t.title}</h1>
+
+        {session?.user ? (
+          <div className="text-right">
+            <p className="text-gray-600">{t.signedIn}</p>
+          </div>
+        ) : (
+          <div className="text-gray-500 italic text-center mt-6">
+            {t.signInToBid}
+          </div>
+        )}
+
+
+          {user && user.role === 'admin' && (
+            <div className="space-x-4">
+              <Link
+                href={`/${locale}/items/create`}
+                // className="hover:underline text-gray-700 dark:text-gray-200"
+                className="inline-block px-4 py-2 bg-black text-white rounded-md hover:bg-primary/90 dark:bg-gray-900 dark:hover:bg-gray-700 transition-colors"
+              >
+                {locale === 'hu' ? 'Új aukció létrehozása' : 'Create an Auction'}
+              </Link>
+            </div>
+          )}
+
+        {/* <div className="space-x-4">
+          {user && user.role === 'admin' && (
+            <>
+              <Link
+                href={`/${locale}/items/create`}
+                // className="hover:underline text-gray-700 dark:text-gray-200"
+                className="inline-block px-4 py-2 bg-black text-white rounded-md hover:bg-primary/90 dark:bg-gray-900 dark:hover:bg-gray-700 transition-colors"
+              >
+                {locale === 'hu' ? 'Új aukció létrehozása' : 'Create Auction'}
+              </Link>
+            </>
+          )}
+        </div> */}
+      </div>
 
       <ItemList items={items} />
-
-      {session?.user ? (
-        <div className="text-right">
-          <p className="text-gray-600">{t.signedIn}</p>
-        </div>
-      ) : (
-        <div className="text-gray-500 italic text-center mt-6">
-          {t.signInToBid}
-        </div>
-      )}
     </main>
   );
 }

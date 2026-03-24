@@ -54,38 +54,32 @@ export function Header({ locale }: HeaderProps) {
             >
               {locale === 'hu' ? 'Aukciók' : 'Auctions'}
             </Link>
-            <Link
-              href={`/${locale}/contact`}
-              className="hover:underline text-gray-700 dark:text-gray-200"
-            >
-              {locale === 'hu' ? 'Kapcsolat' : 'Contact'}
-            </Link>
-            <Link
-              href={`/${locale}/blog`}
-              className="hover:underline text-gray-700 dark:text-gray-200"
-            >
-              {locale === 'hu' ? 'Blog' : 'Blog'}
-            </Link>
-            {user && user.role === 'admin' && (
-              <>
-                <Link
-                  href={`/${locale}/items/create`}
-                  className="hover:underline text-gray-700 dark:text-gray-200"
-                >
-                  {locale === 'hu' ? 'Új aukció létrehozása' : 'Create Auction'}
-                </Link>
-              </>
-            )}
+
             {user && (
               <>
                 <Link
                   href={`/${locale}/auctions`}
                   className="hover:underline text-gray-700 dark:text-gray-200"
                 >
-                  {locale === 'hu' ? 'Saját aukcióim' : 'My Auctions'}
+                  {locale === 'hu' ? 'Az Ajánlataimat' : 'My Bids'}
                 </Link>
               </>
             )}
+
+            <Link
+              href={`/${locale}/blog`}
+              className="hover:underline text-gray-700 dark:text-gray-200"
+            >
+              {locale === 'hu' ? 'Blog' : 'Blog'}
+            </Link>
+
+            <Link
+              href={`/${locale}/contact`}
+              className="hover:underline text-gray-700 dark:text-gray-200"
+            >
+              {locale === 'hu' ? 'Kapcsolat' : 'Contact'}
+            </Link>
+
             {/* 🔔 Knock Notifications */}
             {user && (
               <>
@@ -149,7 +143,7 @@ export function Header({ locale }: HeaderProps) {
 
                           {/* 🔗 Кнопка перегляду */}
                           <Link
-                            href={`/items/${data.itemId}`}
+                            href={`/${locale}/items/${data.itemId}`}
                             onClick={() => setIsVisible(false)}
                             className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline"
                           >
@@ -207,13 +201,20 @@ export function Header({ locale }: HeaderProps) {
                 >
                   {locale === 'hu' ? 'Összes aukció' : 'All Auctions'}
                 </Link>
-                <Link
-                  href={`/${locale}/contact`}
-                  className="hover:underline text-gray-700 dark:text-gray-200"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {locale === 'hu' ? 'Kapcsolat' : 'Contact'}
-                </Link>
+
+                {/* My Bids */}
+                {user && (
+                  <>
+                    <Link
+                      href={`/${locale}/auctions`}
+                      className="hover:underline text-gray-700 dark:text-gray-200"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {locale === 'hu' ? 'Az Ajánlataimat' : 'My Bids'}
+                    </Link>
+                  </>
+                )}
+                
                 <Link
                   href={`/${locale}/blog`}
                   className="hover:underline text-gray-700 dark:text-gray-200"
@@ -221,8 +222,17 @@ export function Header({ locale }: HeaderProps) {
                 >
                   {locale === 'hu' ? 'Blog' : 'Blog'}
                 </Link>
+
+                <Link
+                  href={`/${locale}/contact`}
+                  className="hover:underline text-gray-700 dark:text-gray-200"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {locale === 'hu' ? 'Kapcsolat' : 'Contact'}
+                </Link>
+                
                 {/* Create Auction */}
-                {user && user.role === 'admin' && (
+                {/* {user && user.role === 'admin' && (
                   <>
                     <Link
                       href={`/${locale}/items/create`}
@@ -234,19 +244,7 @@ export function Header({ locale }: HeaderProps) {
                         : 'Create Auction'}
                     </Link>
                   </>
-                )}
-                {/* My Auctions */}
-                {user && (
-                  <>
-                    <Link
-                      href={`/${locale}/auctions`}
-                      className="hover:underline text-gray-700 dark:text-gray-200"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {locale === 'hu' ? 'Saját aukcióim' : 'My Auctions'}
-                    </Link>
-                  </>
-                )}
+                )} */}
 
                 <div className="flex flex-wrap justify-between items-center gap-4 w-full pt-4 border-t border-gray-200 dark:border-gray-800">
                   <div>

@@ -110,7 +110,7 @@ export default async function BlogPostPage({
           <h1 className={pageTitleStyles}>{title}</h1>
 
           <p className="text-sm text-gray-500">
-            By {post.author?.name ?? 'Anonymous'} •{' '}
+            {/* By {post.author?.name ?? 'Anonymous'} •{' '} */}
             {format(new Date(post.publishedAt), 'PPP')}
           </p>
 

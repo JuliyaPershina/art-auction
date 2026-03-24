@@ -150,7 +150,6 @@ export const pictures = pgTable('bb_picture', {
 
   fileKey: text('fileKey').notNull(), // Cloudinary public_id
   name: text('name'), // необовʼязково
-
   type: text('type').notNull().default('art'),
   // 'art' | 'blog' | 'other'
 
@@ -191,7 +190,7 @@ export const bids = pgTable('bb_bids', {
   timestamp: timestamp('timestamp', { mode: 'date' }).notNull().defaultNow(),
 });
 
-export const bidRelations = relations(bids, ({ one }) => ({
+export const bidsRelations = relations(bids, ({ one }) => ({
   item: one(items, {
     fields: [bids.itemId],
     references: [items.id],
@@ -202,11 +201,16 @@ export const bidRelations = relations(bids, ({ one }) => ({
   }),
 }));
 
-export const usersRelations = relations(bids, ({ one }) => ({
-  user: one(users, {
-    fields: [bids.userId],
-    references: [users.id],
-  }),
+// export const usersRelations = relations(bids, ({ one }) => ({
+//   user: one(users, {
+//     fields: [bids.userId],
+//     references: [users.id],
+//   }),
+// }));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  bids: many(bids),
+  items: many(items),
 }));
 
 // Таблиця постів блогу
@@ -216,27 +220,13 @@ export const blogPosts = pgTable('bb_blog_post', {
   authorId: text('authorId')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-
-  // title: text('title').notNull(),
-
-  // excerpt: text('excerpt'), // короткий опис для лєнти
-
-  // content: text('content').notNull(),
-  // довгий текст (markdown або HTML)
-
   slug: text('slug').notNull().unique(),
-
   coverImageKey: text('coverImageKey'),
-  // Cloudinary public_id (опційно)
-
   publishedAt: timestamp('publishedAt', { mode: 'date' })
     .notNull()
     .defaultNow(),
-
   createdAt: timestamp('createdAt', { mode: 'date' }).notNull().defaultNow(),
-
   updatedAt: timestamp('updatedAt', { mode: 'date' }),
-
   isPublished: boolean('isPublished').notNull().default(true),
 });
 
@@ -277,9 +267,19 @@ export const blogPostPictures = pgTable('bb_blog_post_picture', {
 
 // Relations
 
-export const itemRelations = relations(items, ({ many }) => ({
+// export const itemRelations = relations(items, ({ many }) => ({
+//   translations: many(itemTranslations),
+//   bids: many(bids),
+// }));
+
+export const itemRelations = relations(items, ({ many, one }) => ({
   translations: many(itemTranslations),
   bids: many(bids),
+
+  user: one(users, {
+    fields: [items.userId],
+    references: [users.id],
+  }),
 }));
 
 export const itemTranslationRelations = relations(
