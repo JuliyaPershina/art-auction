@@ -10,6 +10,16 @@ import { Button } from './ui/button';
 import { formatToDollar } from '@/util/currency';
 import { isBidOver } from '@/util/bids';
 import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogTrigger,
+} from './ui/alert-dialog';
 
 interface Item {
   id: number;
@@ -89,29 +99,44 @@ export default function ItemCard({ item, index }: ItemCardProps) {
 
         <div className="mt-auto flex flex-col space-y-2">
           {user && user.role === 'admin' && (
-            <Button
-              variant="destructive"
-              onClick={async () => {
-                if (!confirm(t.deleteConfirm)) return;
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">{t.deleteLabel}</Button>
+              </AlertDialogTrigger>
 
-                try {
-                  const res = await fetch(`/api/items/${item.id}`, {
-                    method: 'DELETE',
-                  });
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t.deleteConfirm}</AlertDialogTitle>
+                </AlertDialogHeader>
 
-                  if (!res.ok) {
-                    const data = await res.json();
-                    throw new Error(data.error);
-                  }
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    {locale === 'hu' ? 'Mégse' : 'Cancel'}
+                  </AlertDialogCancel>
 
-                  router.refresh();
-                } catch {
-                  alert(t.deleteError);
-                }
-              }}
-            >
-              {t.deleteLabel}
-            </Button>
+                  <AlertDialogAction
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/items/${item.id}`, {
+                          method: 'DELETE',
+                        });
+
+                        if (!res.ok) {
+                          const data = await res.json();
+                          throw new Error(data.error);
+                        }
+
+                        router.refresh();
+                      } catch {
+                        alert(t.deleteError);
+                      }
+                    }}
+                  >
+                    {locale === 'hu' ? 'Törlés' : 'Delete'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
 
           <Button asChild variant={biddingOver ? 'outline' : 'default'}>

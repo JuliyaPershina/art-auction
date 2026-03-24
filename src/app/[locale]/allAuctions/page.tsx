@@ -58,12 +58,10 @@ export default async function HomePage({
           </div>
         )}
 
-
           {user && user.role === 'admin' && (
             <div className="space-x-4">
               <Link
                 href={`/${locale}/items/create`}
-                // className="hover:underline text-gray-700 dark:text-gray-200"
                 className="inline-block px-4 py-2 bg-black text-white rounded-md hover:bg-primary/90 dark:bg-gray-900 dark:hover:bg-gray-700 transition-colors"
               >
                 {locale === 'hu' ? 'Új aukció létrehozása' : 'Create an Auction'}
@@ -71,19 +69,6 @@ export default async function HomePage({
             </div>
           )}
 
-        {/* <div className="space-x-4">
-          {user && user.role === 'admin' && (
-            <>
-              <Link
-                href={`/${locale}/items/create`}
-                // className="hover:underline text-gray-700 dark:text-gray-200"
-                className="inline-block px-4 py-2 bg-black text-white rounded-md hover:bg-primary/90 dark:bg-gray-900 dark:hover:bg-gray-700 transition-colors"
-              >
-                {locale === 'hu' ? 'Új aukció létrehozása' : 'Create Auction'}
-              </Link>
-            </>
-          )}
-        </div> */}
       </div>
 
       <ItemList items={items} />

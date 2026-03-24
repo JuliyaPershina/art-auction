@@ -59,63 +59,6 @@ export default async function MyBidsPage({
 
       {/* Content */}
       {hasBids ? (
-        // <div className="grid gap-6">
-        //   {userBids.map((bid) => {
-        //     const translation =
-        //       bid.item.translations.find((t) => t.languageCode === locale) ||
-        //       bid.item.translations.find((t) => t.languageCode === 'en');
-
-        //     const name = translation?.name ?? 'Untitled';
-        //     const imageUrl = getCloudinaryImageUrl(bid.item.fileKey);
-
-        //     return (
-        //       <div
-        //         key={bid.id}
-        //         className="flex flex-col sm:flex-row gap-6 bg-white dark:bg-zinc-900 p-5 rounded-2xl shadow hover:shadow-md transition"
-        //       >
-        //         {/* Image */}
-        //         <div className="w-full sm:w-32 aspect-square overflow-hidden rounded-xl">
-        //           <Image
-        //             src={imageUrl}
-        //             alt={name}
-        //             width={150}
-        //             height={150}
-        //             className="w-full h-full object-cover"
-        //             unoptimized
-        //           />
-        //         </div>
-
-        //         {/* Info */}
-        //         <div className="flex flex-col justify-between flex-1">
-        //           <div className="space-y-2">
-        //             <h2 className="text-lg font-semibold">{name}</h2>
-
-        //             <p className="text-sm text-gray-500">{t.by}</p>
-
-        //             <p className="text-xl font-bold">
-        //               ${formatToDollar(bid.amount)}
-        //             </p>
-        //           </div>
-
-        //           <div className="flex justify-between items-center">
-        //             <span className="text-xs text-gray-400">
-        //               {formatDistance(new Date(bid.timestamp), new Date(), {
-        //                 addSuffix: true,
-        //               })}
-        //             </span>
-
-        //             <Link
-        //               href={`/${locale}/items/${bid.item.id}`}
-        //               className="text-sm font-medium hover:underline"
-        //             >
-        //               {locale === 'hu' ? 'Megtekintés' : 'View'}
-        //             </Link>
-        //           </div>
-        //         </div>
-        //       </div>
-        //     );
-        //   })}
-        // </div>
         <MyBidsUI bids={userBids} locale={locale} />
       ) : (
         <div className="flex flex-col items-center text-center gap-6 mt-20">

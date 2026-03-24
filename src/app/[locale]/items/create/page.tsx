@@ -7,11 +7,14 @@ import { pageTitleStyles } from '@/styles';
 import { DatePickerDemo } from '@/components/ui/date-picker';
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 export default function CreatePage() {
   const { locale } = useParams() as { locale: 'hu' | 'en' };
 
   const [date, setDate] = useState<Date | undefined>();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <main className="space-y-10 p-10 max-w-3xl mx-auto">
@@ -25,17 +28,24 @@ export default function CreatePage() {
           e.preventDefault();
           if (!date) return;
 
-          const formData = new FormData(e.currentTarget);
+          setIsLoading(true);
 
-          await createItemActions(locale, {
-            file: formData.get('file') as File,
-            nameEn: formData.get('nameEn') as string,
-            nameHu: formData.get('nameHu') as string,
-            startingPrice: Math.floor(
-              parseFloat(formData.get('startingPrice') as string) * 100,
-            ),
-            endDate: date,
-          });
+          try {
+            const formData = new FormData(e.currentTarget);
+
+            await createItemActions(locale, {
+              file: formData.get('file') as File,
+              nameEn: formData.get('nameEn') as string,
+              nameHu: formData.get('nameHu') as string,
+              startingPrice: Math.floor(
+                parseFloat(formData.get('startingPrice') as string) * 100,
+              ),
+              endDate: date,
+            });
+          } catch (e) {
+            console.error(e);
+            setIsLoading(false); // важливо, якщо помилка
+          }
         }}
       >
         {/* EN */}
@@ -64,8 +74,15 @@ export default function CreatePage() {
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit">
-            {locale === 'hu' ? 'Létrehozás' : 'Create Item'}
+          <Button type="submit" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading
+              ? locale === 'hu'
+                ? 'Feltöltés...'
+                : 'Creating...'
+              : locale === 'hu'
+                ? 'Létrehozás'
+                : 'Create Item'}
           </Button>
         </div>
       </form>
