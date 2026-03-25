@@ -137,7 +137,7 @@ export default function MyBidsUI({
 
                     <Link
                       href={`/${locale}/items/${bid.item.id}`}
-                      className="text-sm font-medium hover:underline"
+                      className="text-sm font-medium hover:underline cursor-pointer"
                     >
                       {t.view}
                     </Link>

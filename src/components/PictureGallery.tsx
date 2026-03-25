@@ -85,7 +85,7 @@ export default function PictureGallery({
                 {isAdmin && (
                   <Button
                     onClick={() => onDelete?.(pic.id)}
-                    className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                    className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-md hover:bg-red-700"
                   >
                     {t.delete}
                   </Button>

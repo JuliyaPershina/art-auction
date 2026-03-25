@@ -39,7 +39,7 @@ export default function CreatePictureToggle({
     <div className="flex flex-col items-center space-y-2">
       <Button
         onClick={() => setOpen(!open)}
-        className="bg-gray-900 self-start text-white px-4 py-2 rounded hover:bg-gray-800"
+        className="bg-gray-900 self-start text-white px-4 py-2 rounded-md hover:bg-gray-800"
       >
         {open ? t.close : t.open}
       </Button>
