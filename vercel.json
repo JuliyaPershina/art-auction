@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/auction-end",
+      "schedule": "0 0 * * *",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer hdgfhggrk452"
+      }
+    }
+  ]
+}

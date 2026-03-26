@@ -9,7 +9,6 @@ import { Knock } from '@knocklabs/node';
 import { env } from '@/env';
 import { isBidOver } from '@/util/bids';
 import { desc } from 'drizzle-orm';
-import { handleAuctionEnd } from '@/lib/auction'; // 👈 ІМПОРТ
 
 const knock = new Knock({ apiKey: env.KNOCK_SECRET_KEY });
 
@@ -68,11 +67,7 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
   await database
     .update(items)
     .set({ currentBid: latestBidValue })
-    .where(eq(items.id, itemId));
-
-  // 🔥 ТЕСТ — примусово викликаємо завершення
-  // await handleAuctionEnd(itemId);
-
+    .where(eq(items.id, itemId));  
 
   // 🧠 Знаходимо всіх користувачів, які робили ставки на цей товар
   const currentbids = await database.query.bids.findMany({
@@ -115,7 +110,6 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
       },
     });
   }
-  // const previousTopBid = currentbids.sort((a, b) => b.amount - a.amount)[1]; // другий = попередній лідер
 
   // ❗ якщо є попередній лідер і це не той самий користувач
   if (
@@ -144,19 +138,6 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
         },
       },
     });
-  }
-
-  // 🏁 якщо після ставки аукціон закінчився → визначаємо winner
-  const updatedItem = await database.query.items.findFirst({
-    where: eq(items.id, itemId),
-  });
-
-  if (updatedItem && isBidOver(updatedItem)) {
-    await handleAuctionEnd(itemId);
-  }
-
-  if (updatedItem) {
-    console.log('isBidOver:', isBidOver(updatedItem));
   }
 
   // 🔁 Оновлення сторінки товару
