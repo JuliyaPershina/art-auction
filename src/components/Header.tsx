@@ -230,21 +230,6 @@ export function Header({ locale }: HeaderProps) {
                 >
                   {locale === 'hu' ? 'Kapcsolat' : 'Contact'}
                 </Link>
-                
-                {/* Create Auction */}
-                {/* {user && user.role === 'admin' && (
-                  <>
-                    <Link
-                      href={`/${locale}/items/create`}
-                      className="hover:underline text-gray-700 dark:text-gray-200"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {locale === 'hu'
-                        ? 'Új aukció létrehozása'
-                        : 'Create Auction'}
-                    </Link>
-                  </>
-                )} */}
 
                 <div className="flex flex-wrap justify-between items-center gap-4 w-full pt-4 border-t border-gray-200 dark:border-gray-800">
                   <div>

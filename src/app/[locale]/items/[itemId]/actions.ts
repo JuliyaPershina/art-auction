@@ -8,6 +8,7 @@ import { revalidatePath } from 'next/cache';
 import { Knock } from '@knocklabs/node';
 import { env } from '@/env';
 import { isBidOver } from '@/util/bids';
+import { desc } from 'drizzle-orm';
 
 const knock = new Knock({ apiKey: env.KNOCK_SECRET_KEY });
 
@@ -21,10 +22,6 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
   if (!userId) {
     throw new Error('You must be logged in to place a bid.');
   }
-
-  // const item = await database.query.items.findFirst({
-  //   where: eq(items.id, itemId),
-  // });
 
   const item = await database.query.items.findFirst({
     where: eq(items.id, itemId),
@@ -40,19 +37,25 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
   if (isBidOver(item)) {
     throw new Error('Bidding period is over for this item.');
   }
-  
+
   const translation =
     item.translations.find((t) => t.languageCode === locale) ||
     item.translations.find((t) => t.languageCode === 'en');
 
   const itemName = translation?.name ?? 'Untitled';
 
-
   // 💰 Обчислюємо нову ставку
 
   const latestBidValue = item.currentBid
     ? item.currentBid + item.bidInterval // існуюча ставка + крок
     : item.startingPrice;
+
+  // 5️⃣ Знайти попереднього лідера
+ const previousTopBid = await database.query.bids.findFirst({
+   where: eq(bids.itemId, itemId),
+   orderBy: (b) => desc(b.amount), // 👈 ось так правильно
+   with: { user: true },
+ });
 
   await database.insert(bids).values({
     amount: latestBidValue,
@@ -106,6 +109,36 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
         itemId,
         itemName,
         amount: latestBidValue,
+      },
+    });
+  }
+  // const previousTopBid = currentbids.sort((a, b) => b.amount - a.amount)[1]; // другий = попередній лідер
+
+  // ❗ якщо є попередній лідер і це не той самий користувач
+  if (
+    previousTopBid &&
+    previousTopBid.userId !== userId &&
+    previousTopBid.user?.email
+  ) {
+    await knock.workflows.trigger('user-outbid', {
+      recipients: [
+        {
+          id: previousTopBid.userId,
+          name: previousTopBid.user.name ?? 'Anonymous',
+          email: previousTopBid.user.email,
+        },
+      ],
+      data: {
+        item: {
+          title: itemName,
+          url: `${env.NEXT_PUBLIC_APP_URL}/items/${itemId}`,
+        },
+        bid: {
+          amount: previousTopBid.amount, // стара ставка
+        },
+        new_bid: {
+          amount: latestBidValue, // нова ставка
+        },
       },
     });
   }
