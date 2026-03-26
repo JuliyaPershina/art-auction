@@ -9,6 +9,7 @@ import { Knock } from '@knocklabs/node';
 import { env } from '@/env';
 import { isBidOver } from '@/util/bids';
 import { desc } from 'drizzle-orm';
+import { handleAuctionEnd } from '@/lib/auction'; // 👈 ІМПОРТ
 
 const knock = new Knock({ apiKey: env.KNOCK_SECRET_KEY });
 
@@ -51,11 +52,11 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
     : item.startingPrice;
 
   // 5️⃣ Знайти попереднього лідера
- const previousTopBid = await database.query.bids.findFirst({
-   where: eq(bids.itemId, itemId),
-   orderBy: (b) => desc(b.amount), // 👈 ось так правильно
-   with: { user: true },
- });
+  const previousTopBid = await database.query.bids.findFirst({
+    where: eq(bids.itemId, itemId),
+    orderBy: (b) => desc(b.amount), // 👈 ось так правильно
+    with: { user: true },
+  });
 
   await database.insert(bids).values({
     amount: latestBidValue,
@@ -68,6 +69,10 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
     .update(items)
     .set({ currentBid: latestBidValue })
     .where(eq(items.id, itemId));
+
+  // 🔥 ТЕСТ — примусово викликаємо завершення
+  // await handleAuctionEnd(itemId);
+
 
   // 🧠 Знаходимо всіх користувачів, які робили ставки на цей товар
   const currentbids = await database.query.bids.findMany({
@@ -92,8 +97,6 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
         ]),
     ).values(),
   );
-
-  console.log('Recipients:', recipients);
 
   // 🔔 Виклик Knock Workflow
   if (recipients.length > 0) {
@@ -141,6 +144,19 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
         },
       },
     });
+  }
+
+  // 🏁 якщо після ставки аукціон закінчився → визначаємо winner
+  const updatedItem = await database.query.items.findFirst({
+    where: eq(items.id, itemId),
+  });
+
+  if (updatedItem && isBidOver(updatedItem)) {
+    await handleAuctionEnd(itemId);
+  }
+
+  if (updatedItem) {
+    console.log('isBidOver:', isBidOver(updatedItem));
   }
 
   // 🔁 Оновлення сторінки товару
