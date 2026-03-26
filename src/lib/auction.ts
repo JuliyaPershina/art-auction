@@ -104,8 +104,9 @@ export async function handleAuctionEnd(itemId: number) {
 
   const itemName =
     item.translations.find((t) => t.languageCode === 'en')?.name ?? 'Untitled';
+  const locale = 'en';
 
-  const itemUrl = `${env.NEXT_PUBLIC_APP_URL}/items/${itemId}`;
+  const itemUrl = `${env.NEXT_PUBLIC_APP_URL}/${locale}/items/${itemId}`;
 
   // 🏆 WINNER
   await knock.workflows.trigger('auction-won', {

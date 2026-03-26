@@ -112,6 +112,12 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
   }
 
   // ❗ якщо є попередній лідер і це не той самий користувач
+
+  // const baseUrl =
+  // env.NEXT_PUBLIC_APP_URL || 'https://bid-art-buddy.vercel.app';
+
+  // const itemUrl = `${baseUrl}/items/${itemId}`;
+  // https://art-auction-git-main-yuliiapershinas-projects.vercel.app
   if (
     previousTopBid &&
     previousTopBid.userId !== userId &&
@@ -128,7 +134,7 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
       data: {
         item: {
           title: itemName,
-          url: `${env.NEXT_PUBLIC_APP_URL}/items/${itemId}`,
+          url: `${env.NEXT_PUBLIC_APP_URL}/${locale}/items/${itemId}`,
         },
         bid: {
           amount: previousTopBid.amount, // стара ставка
