@@ -2,17 +2,16 @@ import { pageTitleStyles } from '@/styles';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { formatDistance } from 'date-fns';
+import { formatDistance, format } from 'date-fns';
 import { formatToDollar } from '@/util/currency';
-import { createBidAction } from './actions';
 import { getBidsForItem } from '@/data-access/bids';
 import { getItem } from '@/data-access/items';
 import { auth } from '../../../../../auth';
-
 import { Badge } from '@/components/ui/badge';
 import { isBidOver } from '@/util/bids';
 import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
 import PlaceBidButton from '@/components/PlaceBidButton';
+import ImagePreviewModal from '@/components/ImagePreviewModal';
 
 function formatTimestamp(timestamp: Date) {
   return formatDistance(timestamp, new Date(), {
@@ -44,10 +43,10 @@ export default async function ItemPage({
         <h1 className={pageTitleStyles}>
           {locale === 'hu' ? 'Tétel nem található' : 'Item not found'}
         </h1>
-        <p className="italic">
+        <p className="italic text-center max-w-md">
           {locale === 'hu'
             ? 'A keresett tétel nem létezik. Kérjük, lépjen vissza, és keressen egy másik aukciós tételt.'
-            : 'The item you are loking for does not exist. Please go back and search for a different auction item'}
+            : 'The item you are looking for does not exist. Please go back and search for a different auction item.'}
         </p>
 
         <Button asChild>
@@ -60,7 +59,6 @@ export default async function ItemPage({
   }
 
   const imageUrl = getCloudinaryImageUrl(item.fileKey);
-
   const allBids = await getBidsForItem(item.id);
 
   const hasBids = allBids.length > 0;
@@ -71,15 +69,15 @@ export default async function ItemPage({
     session && item.userId !== session.user.id && !isBiddingOver;
 
   const t = {
-    auctionFor: locale === 'hu' ? 'Aukció:' : 'Auction for:',
     currentBid: locale === 'hu' ? 'Aktuális licit' : 'Current Bid',
     startingPrice: locale === 'hu' ? 'Kezdő ár' : 'Starting price',
     bidInterval: locale === 'hu' ? 'Licitlépcső' : 'Bid Interval',
-    placeBid: locale === 'hu' ? 'Licitálás' : 'Place a Bid',
     biddingOver: locale === 'hu' ? 'Licit lezárva' : 'Bidding over',
     noBids: locale === 'hu' ? 'Még nincs licit' : 'No bids yet',
     currentBids: locale === 'hu' ? 'Aktuális licitkör' : 'Current Bids',
     by: locale === 'hu' ? 'által' : 'by',
+    ends: locale === 'hu' ? 'Lejár' : 'Ends on',
+    over: locale === 'hu' ? 'Licit lezárva' : 'Bidding is Over',
   };
 
   const translation =
@@ -89,28 +87,19 @@ export default async function ItemPage({
   const name = translation?.name ?? 'Untitled';
 
   return (
-    <main className="p-6 lg:p-10 max-w-7xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <main className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
         {/* LEFT: ITEM */}
-        <div className="space-y-6">
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-6 space-y-6">
-            {/* Image */}
-            <div className="w-full aspect-square overflow-hidden rounded-xl">
-              <Image
-                src={imageUrl}
-                alt={name}
-                width={500}
-                height={500}
-                className="w-full h-full object-cover"
-                unoptimized
-              />
+        <div className="px-0 sm:px-4 lg:px-12">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-4 sm:p-6 space-y-4 sm:space-y-6">
+            {/*  компактна + клікабельна картинка */}
+            <div className="w-full max-w-sm sm:max-w-md mx-auto aspect-square">
+              <ImagePreviewModal src={imageUrl} alt={name} />
             </div>
 
             {/* Title */}
-            <div className="space-y-2">
-              <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">
-                {name}
-              </h1>
+            <div className="space-y-1 text-center">
+              <h1 className="text-3xl font-bold tracking-tight">{name}</h1>
 
               {isBiddingOver && (
                 <Badge variant="destructive">{t.biddingOver}</Badge>
@@ -118,12 +107,12 @@ export default async function ItemPage({
             </div>
 
             {/* Price */}
-            <div className="space-y-3">
-              <div>
+            <div className="space-y-4 px-6">
+              <div className="text-center space-y-3">
                 <p className="text-sm text-gray-500 uppercase">
                   {t.currentBid}
                 </p>
-                <p className="text-3xl font-bold">
+                <p className="text-2xl sm:text-3xl font-bold">
                   ${formatToDollar(item.currentBid)}
                 </p>
               </div>
@@ -137,6 +126,15 @@ export default async function ItemPage({
                 <span>{t.bidInterval}</span>
                 <span>${formatToDollar(item.bidInterval)}</span>
               </div>
+
+              <div className="text-sm text-gray-500 text-center">
+                {isBiddingOver
+                  ? t.over
+                  : `${t.ends}: ${format(
+                      new Date(item.endDate),
+                      'eeee, MMM d, yyyy',
+                    )}`}
+              </div>
             </div>
           </div>
         </div>
@@ -144,8 +142,10 @@ export default async function ItemPage({
         {/* RIGHT: BIDS */}
         <div className="space-y-6 lg:sticky lg:top-10 h-fit">
           {/* Back */}
-          <Button asChild variant="ghost" className="text-sm">
-            <Link href={`/${locale}/allAuctions`}>← Back to auctions</Link>
+          <Button asChild variant="ghost" className="text-sm"> 
+            <Link href={`/${locale}/allAuctions`}>
+              ← {locale === 'hu' ? 'Vissza az aukciókhoz' : 'Back to auctions'}
+            </Link>
           </Button>
 
           {/* Action */}
@@ -157,7 +157,7 @@ export default async function ItemPage({
             />
           )}
 
-          {/* Bids card */}
+          {/* Bids */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-6 space-y-6">
             <h2 className="text-2xl font-semibold">{t.currentBids}</h2>
 
@@ -166,12 +166,12 @@ export default async function ItemPage({
                 {allBids.map((bid) => (
                   <li
                     key={bid.id}
-                    className="p-4 rounded-xl border border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 hover:shadow-md transition"
+                    className="p-3 sm:p-4 rounded-xl border border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 hover:shadow-md transition"
                   >
-                    <div className="flex justify-between items-center">
-                      <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <span className="font-semibold">
-                          ${formatToDollar(bid.amount)}
+                          ${formatToDollar(bid.amount)} {/* ✅ FIX */}
                         </span>
                         <span className="text-gray-500">{t.by}</span>
                         <span className="font-semibold">{bid.user.name}</span>

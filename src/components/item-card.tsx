@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+// import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -10,6 +10,7 @@ import { Button } from './ui/button';
 import { formatToDollar } from '@/util/currency';
 import { isBidOver } from '@/util/bids';
 import { getCloudinaryImageUrl } from '@/lib/cloudinary-url';
+import ImagePreviewModal from './ImagePreviewModal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,7 +40,6 @@ export default function ItemCard({ item, index }: ItemCardProps) {
   const params = useParams();
   const locale = params.locale as 'hu' | 'en';
 
-
   const { data: session } = useSession();
   const user = session?.user;
 
@@ -68,17 +68,17 @@ export default function ItemCard({ item, index }: ItemCardProps) {
   };
 
   return (
-    <div className="border rounded-xl p-6 flex flex-col bg-white dark:bg-gray-800">
+    <div
+      onClick={() => router.push(`/${locale}/items/${item.id}`)}
+      className="group border rounded-xl p-4 sm:p-5 flex flex-col bg-white dark:bg-gray-800 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+    >
       <div className="w-full aspect-square overflow-hidden rounded-lg mb-4">
-        <Image
-          src={imageUrl}
-          alt={item.name}
-          width={400}
-          height={400}
-          className="object-cover w-full h-full transition-transform hover:scale-110"
-          unoptimized
-          priority={index === 0}
-        />
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="w-full aspect-square overflow-hidden rounded-lg mb-4"
+        >
+          <ImagePreviewModal src={imageUrl} alt={item.name} />
+        </div>
       </div>
 
       <div className="flex flex-col grow space-y-4">

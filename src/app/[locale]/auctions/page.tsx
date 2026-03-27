@@ -44,9 +44,9 @@ export default async function MyBidsPage({
   };
 
   return (
-    <main className="p-6 lg:p-10 max-w-6xl mx-auto space-y-8">
+    <main className="p-4 sm:p-6 lg:p-10 max-w-6xl mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
         <h1 className={pageTitleStyles}>{t.title}</h1>
 
         <Link
