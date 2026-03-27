@@ -9,6 +9,7 @@ import { Knock } from '@knocklabs/node';
 import { env } from '@/env';
 import { isBidOver } from '@/util/bids';
 import { desc } from 'drizzle-orm';
+import { formatToDollar } from '@/util/currency';
 
 const knock = new Knock({ apiKey: env.KNOCK_SECRET_KEY });
 
@@ -57,6 +58,11 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
     with: { user: true },
   });
 
+  const formattedOldPrice = previousTopBid
+    ? formatToDollar(previousTopBid.amount)
+    : null; // ✅ FIX
+  const formattedNewPrice = formatToDollar(latestBidValue);
+
   await database.insert(bids).values({
     amount: latestBidValue,
     itemId,
@@ -67,7 +73,7 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
   await database
     .update(items)
     .set({ currentBid: latestBidValue })
-    .where(eq(items.id, itemId));  
+    .where(eq(items.id, itemId));
 
   // 🧠 Знаходимо всіх користувачів, які робили ставки на цей товар
   const currentbids = await database.query.bids.findMany({
@@ -106,18 +112,13 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
       data: {
         itemId,
         itemName,
-        amount: latestBidValue,
+        amount: formattedNewPrice,
       },
     });
   }
 
   // ❗ якщо є попередній лідер і це не той самий користувач
 
-  // const baseUrl =
-  // env.NEXT_PUBLIC_APP_URL || 'https://bid-art-buddy.vercel.app';
-
-  // const itemUrl = `${baseUrl}/items/${itemId}`;
-  // https://art-auction-git-main-yuliiapershinas-projects.vercel.app
   if (
     previousTopBid &&
     previousTopBid.userId !== userId &&
@@ -137,10 +138,10 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
           url: `${env.NEXT_PUBLIC_APP_URL}/${locale}/items/${itemId}`,
         },
         bid: {
-          amount: previousTopBid.amount, // стара ставка
+          amount: formattedOldPrice, // стара ставка
         },
         new_bid: {
-          amount: latestBidValue, // нова ставка
+          amount: formattedNewPrice, // нова ставка
         },
       },
     });
