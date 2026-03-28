@@ -84,6 +84,41 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
   });
 
   // 🧹 Унікальні отримувачі, крім поточного користувача
+  // const recipients = Array.from(
+  //   new Map(
+  //     currentbids
+  //       .filter((b) => b.userId !== userId)
+  //       .map((b) => [
+  //         b.userId,
+  //         {
+  //           id: b.userId, // Knock очікує string, але ID може бути number
+  //           name: b.user.name ?? 'Anonymous',
+  //           email: b.user.email ?? 'unknown@example.com',
+  //         },
+  //       ]),
+  //   ).values(),
+  // );
+
+  // // 🔔 Виклик Knock Workflow
+  // if (recipients.length > 0) {
+  //   await knock.workflows.trigger('user-placed-bid', {
+  //     actor: {
+  //       id: userId.toString(),
+  //       name: session.user?.name ?? 'Anonimus',
+  //       email: session.user?.email,
+  //       collection: 'users',
+  //     },
+  //     recipients,
+  //     data: {
+  //       itemId,
+  //       itemName,
+  //       amount: formattedNewPrice,
+  //     },
+  //   });
+  // }
+
+  // 🔧 тільки змінені місця
+
   const recipients = Array.from(
     new Map(
       currentbids
@@ -91,7 +126,7 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
         .map((b) => [
           b.userId,
           {
-            id: b.userId, // Knock очікує string, але ID може бути number
+            id: b.userId.toString(), // ✅ FIX
             name: b.user.name ?? 'Anonymous',
             email: b.user.email ?? 'unknown@example.com',
           },
@@ -99,7 +134,6 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
     ).values(),
   );
 
-  // 🔔 Виклик Knock Workflow
   if (recipients.length > 0) {
     await knock.workflows.trigger('user-placed-bid', {
       actor: {
@@ -110,9 +144,11 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
       },
       recipients,
       data: {
+        type: 'outbid', // ✅ NEW
         itemId,
         itemName,
-        amount: formattedNewPrice,
+        amount: latestBidValue, 
+        url: `${env.NEXT_PUBLIC_APP_URL}/${locale}/items/${itemId}`,
       },
     });
   }

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { handleAuctionEnd } from '@/lib/auction';
 import { database } from '@/db/database';
 import { items } from '@/db/schema';
-import { lte, eq } from 'drizzle-orm';
+import { lte, eq, and } from 'drizzle-orm';
 
 export async function GET(req: Request) {
   // 🔐 Перевірка секретного ключа
@@ -17,7 +17,8 @@ export async function GET(req: Request) {
 
   // 🔎 Знаходимо всі аукціони, що ще не оброблені та вже завершились
   const finishedItems = await database.query.items.findMany({
-    where: (item) => lte(item.endDate, now) && eq(item.isProcessed, false),
+    // where: (item) => lte(item.endDate, now) && eq(item.isProcessed, false),
+    where: (item) => and(lte(item.endDate, now), eq(item.isProcessed, false)),
   });
 
   for (const item of finishedItems) {

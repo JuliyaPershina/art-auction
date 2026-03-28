@@ -91,63 +91,124 @@ export function Header({ locale }: HeaderProps) {
                   buttonRef={notifButtonRef}
                   isVisible={isVisible}
                   onClose={() => setIsVisible(false)}
+                  // renderItem={({ item, ...props }) => {
+                  //   const data = item.data;
+
+                  //   if (!data) {
+                  //     return (
+                  //       <NotificationCell {...props} item={item} key={item.id}>
+                  //         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                  //           <div className="text-gray-500 text-sm italic">
+                  //             No item data
+                  //           </div>
+                  //         </div>
+                  //       </NotificationCell>
+                  //     );
+                  //   }
+
+                  //   return (
+                  //     <NotificationCell {...props} item={item} key={item.id}>
+                  //       <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
+                  //         {/* 🔔 Іконка */}
+                  //         <div className="shrink-0 w-10 h-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900 rounded-full">
+                  //           <svg
+                  //             xmlns="http://www.w3.org/2000/svg"
+                  //             className="h-5 w-5 text-blue-600 dark:text-blue-300"
+                  //             fill="none"
+                  //             viewBox="0 0 24 24"
+                  //             stroke="currentColor"
+                  //           >
+                  //             <path
+                  //               strokeLinecap="round"
+                  //               strokeLinejoin="round"
+                  //               strokeWidth={2}
+                  //               d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  //             />
+                  //           </svg>
+                  //         </div>
+
+                  //         {/* 📝 Текст повідомлення */}
+                  //         <div className="flex-1">
+                  //           <div className="text-gray-800 dark:text-gray-100 font-medium">
+                  //             Someone outbid you on{' '}
+                  //             <span className="font-semibold">
+                  //               {data.itemName}
+                  //             </span>
+                  //             !
+                  //           </div>
+                  //           <div className="text-sm text-gray-500 dark:text-gray-400">
+                  //             New bid: {formatToDollar(data.amount)}
+                  //           </div>
+                  //         </div>
+
+                  //         {/* 🔗 Кнопка перегляду */}
+                  //         <Link
+                  //           href={`/${locale}/items/${data.itemId}`}
+                  //           onClick={() => setIsVisible(false)}
+                  //           className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline"
+                  //         >
+                  //           View item →
+                  //         </Link>
+                  //       </div>
+                  //     </NotificationCell>
+                  //   );
+                  // }}
                   renderItem={({ item, ...props }) => {
                     const data = item.data;
 
-                    if (!data) {
-                      return (
-                        <NotificationCell {...props} item={item} key={item.id}>
-                          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                            <div className="text-gray-500 text-sm italic">
-                              No item data
-                            </div>
-                          </div>
-                        </NotificationCell>
-                      );
+                    if (!data) return null;
+
+                    let title = '';
+                    let subtitle = '';
+                    let link = '#';
+
+                    switch (data.type) {
+                      case 'auction-won':
+                        title = `🎉 You won "${data.itemName}"`;
+                        subtitle = `Final price: ${formatToDollar(data.amount)}`;
+                        link = data.url;
+                        break;
+
+                      case 'auction-won-admin':
+                        title = `🏁 Auction finished`;
+                        subtitle = `${data.winnerName} won "${data.itemName}" for ${formatToDollar(data.amount)}`;
+                        link = data.url;
+                        break;
+
+                      case 'outbid':
+                        title = `Someone outbid you on "${data.itemName}"`;
+                        subtitle = `New bid: ${formatToDollar(data.amount)}`;
+                        link = `/${locale}/items/${data.itemId}`;
+                        break;
+
+                      case 'auction-lost':
+                        title = `Auction ended`;
+                        subtitle = `You did not win "${data.itemName}"`;
+                        link = `/${locale}/items/${data.itemId}`;
+                        break;
+
+                      default:
+                        title = 'Notification';
                     }
 
                     return (
                       <NotificationCell {...props} item={item} key={item.id}>
                         <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
-                          {/* 🔔 Іконка */}
-                          <div className="shrink-0 w-10 h-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900 rounded-full">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-blue-600 dark:text-blue-300"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                              />
-                            </svg>
-                          </div>
-
-                          {/* 📝 Текст повідомлення */}
                           <div className="flex-1">
                             <div className="text-gray-800 dark:text-gray-100 font-medium">
-                              Someone outbid you on{' '}
-                              <span className="font-semibold">
-                                {data.itemName}
-                              </span>
-                              !
+                              {title}
                             </div>
                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                              New bid: {formatToDollar(data.amount)}
+                              {subtitle}
                             </div>
                           </div>
 
-                          {/* 🔗 Кнопка перегляду */}
                           <Link
-                            href={`/${locale}/items/${data.itemId}`}
+                            href={link}
                             onClick={() => setIsVisible(false)}
                             className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline"
                           >
-                            View item →
+                            View →
                           </Link>
                         </div>
                       </NotificationCell>
@@ -214,7 +275,7 @@ export function Header({ locale }: HeaderProps) {
                     </Link>
                   </>
                 )}
-                
+
                 <Link
                   href={`/${locale}/blog`}
                   className="hover:underline text-gray-700 dark:text-gray-200"
@@ -244,23 +305,112 @@ export function Header({ locale }: HeaderProps) {
                           buttonRef={notifButtonRef}
                           isVisible={isVisible}
                           onClose={() => setIsVisible(false)}
+                          // renderItem={({ item, ...props }) => {
+                          //   const data = item.data;
+
+                          //   if (!data) {
+                          //     return (
+                          //       <NotificationCell
+                          //         {...props}
+                          //         item={item}
+                          //         key={item.id}
+                          //       >
+                          //         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                          //           <div className="text-gray-500 text-sm italic">
+                          //             No item data
+                          //           </div>
+                          //         </div>
+                          //       </NotificationCell>
+                          //     );
+                          //   }
+
+                          //   return (
+                          //     <NotificationCell
+                          //       {...props}
+                          //       item={item}
+                          //       key={item.id}
+                          //     >
+                          //       <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
+                          //         {/* 🔔 Іконка */}
+                          //         <div className="shrink-0 w-10 h-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900 rounded-full">
+                          //           <svg
+                          //             xmlns="http://www.w3.org/2000/svg"
+                          //             className="h-5 w-5 text-blue-600 dark:text-blue-300"
+                          //             fill="none"
+                          //             viewBox="0 0 24 24"
+                          //             stroke="currentColor"
+                          //           >
+                          //             <path
+                          //               strokeLinecap="round"
+                          //               strokeLinejoin="round"
+                          //               strokeWidth={2}
+                          //               d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                          //             />
+                          //           </svg>
+                          //         </div>
+
+                          //         {/* 📝 Текст повідомлення */}
+                          //         <div className="flex-1">
+                          //           <div className="text-gray-800 dark:text-gray-100 font-medium">
+                          //             Someone outbid you on{' '}
+                          //             <span className="font-semibold">
+                          //               {data.itemName}
+                          //             </span>
+                          //             !
+                          //           </div>
+                          //           <div className="text-sm text-gray-500 dark:text-gray-400">
+                          //             New bid: {formatToDollar(data.amount)}
+                          //           </div>
+                          //         </div>
+
+                          //         {/* 🔗 Кнопка перегляду */}
+                          //         <Link
+                          //           href={`/${locale}/items/${data.itemId}`}
+                          //           onClick={() => setIsVisible(false)}
+                          //           className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline"
+                          //         >
+                          //           View item →
+                          //         </Link>
+                          //       </div>
+                          //     </NotificationCell>
+                          //   );
+                          // }}
                           renderItem={({ item, ...props }) => {
                             const data = item.data;
 
-                            if (!data) {
-                              return (
-                                <NotificationCell
-                                  {...props}
-                                  item={item}
-                                  key={item.id}
-                                >
-                                  <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                                    <div className="text-gray-500 text-sm italic">
-                                      No item data
-                                    </div>
-                                  </div>
-                                </NotificationCell>
-                              );
+                            if (!data) return null;
+
+                            let title = '';
+                            let subtitle = '';
+                            let link = '#';
+
+                            switch (data.type) {
+                              case 'auction-won':
+                                title = `🎉 You won "${data.itemName}"`;
+                                subtitle = `Final price: ${formatToDollar(data.amount)}`;
+                                link = data.url;
+                                break;
+
+                              case 'auction-won-admin':
+                                title = `🏁 Auction finished`;
+                                subtitle = `${data.winnerName} won "${data.itemName}" for ${formatToDollar(data.amount)}`;
+                                link = data.url;
+                                break;
+
+                              case 'outbid':
+                                title = `Someone outbid you on "${data.itemName}"`;
+                                subtitle = `New bid: ${formatToDollar(data.amount)}`;
+                                link = `/${locale}/items/${data.itemId}`;
+                                break;
+
+                              case 'auction-lost':
+                                title = `Auction ended`;
+                                subtitle = `You did not win "${data.itemName}"`;
+                                link = `/${locale}/items/${data.itemId}`;
+                                break;
+
+                              default:
+                                title = 'Notification';
                             }
 
                             return (
@@ -270,45 +420,21 @@ export function Header({ locale }: HeaderProps) {
                                 key={item.id}
                               >
                                 <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
-                                  {/* 🔔 Іконка */}
-                                  <div className="shrink-0 w-10 h-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900 rounded-full">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="h-5 w-5 text-blue-600 dark:text-blue-300"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      stroke="currentColor"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                                      />
-                                    </svg>
-                                  </div>
-
-                                  {/* 📝 Текст повідомлення */}
                                   <div className="flex-1">
                                     <div className="text-gray-800 dark:text-gray-100 font-medium">
-                                      Someone outbid you on{' '}
-                                      <span className="font-semibold">
-                                        {data.itemName}
-                                      </span>
-                                      !
+                                      {title}
                                     </div>
                                     <div className="text-sm text-gray-500 dark:text-gray-400">
-                                      New bid: {formatToDollar(data.amount)}
+                                      {subtitle}
                                     </div>
                                   </div>
 
-                                  {/* 🔗 Кнопка перегляду */}
                                   <Link
-                                    href={`/${locale}/items/${data.itemId}`}
+                                    href={link}
                                     onClick={() => setIsVisible(false)}
                                     className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline"
                                   >
-                                    View item →
+                                    View →
                                   </Link>
                                 </div>
                               </NotificationCell>
