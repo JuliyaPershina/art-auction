@@ -152,15 +152,60 @@ export async function createBidAction(locale: 'hu' | 'en', itemId: number) {
       },
     });
   }
+  // if (recipients.length > 0) {
+  //   await knock.workflows.trigger('user-outbid-in-app', {
+  //     actor: {
+  //       id: userId,
+  //       name: session.user?.name ?? 'Anonimus',
+  //       email: session.user?.email,
+  //       collection: 'users',
+  //     },
+  //     recipients,
+  //     data: {
+  //       type: 'outbid', // ✅ NEW
+  //       itemId,
+  //       itemName,
+  //       amount: latestBidValue, 
+  //       url: `${env.NEXT_PUBLIC_APP_URL}/${locale}/items/${itemId}`,
+  //     },
+  //   });
+  // }
 
   // ❗ якщо є попередній лідер і це не той самий користувач
 
+  // if (
+  //   previousTopBid &&
+  //   previousTopBid.userId !== userId &&
+  //   previousTopBid.user?.email
+  // ) {
+  //   await knock.workflows.trigger('user-outbid', {
+  //     recipients: [
+  //       {
+  //         id: previousTopBid.userId,
+  //         name: previousTopBid.user.name ?? 'Anonymous',
+  //         email: previousTopBid.user.email,
+  //       },
+  //     ],
+  //     data: {
+  //       item: {
+  //         title: itemName,
+  //         url: `${env.NEXT_PUBLIC_APP_URL}/${locale}/items/${itemId}`,
+  //       },
+  //       bid: {
+  //         amount: formattedOldPrice, // стара ставка
+  //       },
+  //       new_bid: {
+  //         amount: formattedNewPrice, // нова ставка
+  //       },
+  //     },
+  //   });
+  // }
   if (
     previousTopBid &&
     previousTopBid.userId !== userId &&
     previousTopBid.user?.email
   ) {
-    await knock.workflows.trigger('user-outbid', {
+    await knock.workflows.trigger('user-outbid-in-app', {
       recipients: [
         {
           id: previousTopBid.userId,

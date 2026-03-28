@@ -163,7 +163,7 @@ export async function handleAuctionEnd(itemId: number) {
   // 🏆 WINNER
   await knock.workflows.trigger('auction-won', {
     actor: {
-      id: item.userId,
+      id: item.userId.toString(),
       name: 'Auction system',
       collection: 'users', // ✅ FIX
     },
@@ -187,7 +187,7 @@ export async function handleAuctionEnd(itemId: number) {
   if (admins.length > 0) {
     await knock.workflows.trigger('auction-won-admin', {
       recipients: admins.map((admin) => ({
-        id: admin.id,
+        id: admin.id.toString(),
         email: admin.email!,
         name: admin.name ?? 'Admin',
       })),

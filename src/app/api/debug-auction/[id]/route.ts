@@ -25,4 +25,3 @@ export async function GET(
   });
 }
 
-// http://localhost:3000/api/debug-auction/18

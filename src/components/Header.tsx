@@ -397,7 +397,7 @@ export function Header({ locale }: HeaderProps) {
                                 link = data.url;
                                 break;
 
-                              case 'outbid':
+                              case 'user-outbid-in-app':
                                 title = `Someone outbid you on "${data.itemName}"`;
                                 subtitle = `New bid: ${formatToDollar(data.amount)}`;
                                 link = `/${locale}/items/${data.itemId}`;
