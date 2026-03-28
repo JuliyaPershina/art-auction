@@ -42,8 +42,16 @@ export async function handleAuctionEnd(itemId: number) {
 
   const itemUrl = `${env.NEXT_PUBLIC_APP_URL}/${locale}/items/${itemId}`;
 
+  const admins = await database.query.users.findMany({
+    where: (u, { eq }) => eq(u.role, 'admin'),
+  });
+
   // 🏆 WINNER
   await knock.workflows.trigger('auction-won', {
+    actor: {
+      id: item.userId, // продавець або система
+      name: 'Auction system',
+    },
     recipients: [
       {
         id: winnerBid.userId.toString(),
@@ -58,6 +66,23 @@ export async function handleAuctionEnd(itemId: number) {
       url: itemUrl,
     },
   });
+
+  if (admins.length > 0) {
+    await knock.workflows.trigger('auction-won-admin', {
+      recipients: admins.map((admin) => ({
+        id: admin.id,
+        email: admin.email!,
+        name: admin.name ?? 'Admin',
+      })),
+      data: {
+        itemId,
+        itemName,
+        amount: formatToDollar(winnerBid.amount),
+        winnerName: winnerBid.user.name ?? 'Anonymous',
+        url: itemUrl,
+      },
+    });
+  }
 
   // 😐 LOSERS (унікальні)
   const loserUsers = Array.from(
