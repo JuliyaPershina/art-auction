@@ -175,9 +175,9 @@ export function Header({ locale }: HeaderProps) {
                         link = data.url;
                         break;
 
-                      case 'outbid':
+                      case 'outbid-in-app':
                         title = `Someone outbid you on "${data.itemName}"`;
-                        subtitle = `New bid: ${formatToDollar(data.amount)}`;
+                        subtitle = `New bid: ${formatToDollar(Number(data.amount))}`;
                         link = `/${locale}/items/${data.itemId}`;
                         break;
 
@@ -397,7 +397,7 @@ export function Header({ locale }: HeaderProps) {
                                 link = data.url;
                                 break;
 
-                              case 'user-outbid-in-app':
+                              case 'outbid-in-app':
                                 title = `Someone outbid you on "${data.itemName}"`;
                                 subtitle = `New bid: ${formatToDollar(data.amount)}`;
                                 link = `/${locale}/items/${data.itemId}`;
