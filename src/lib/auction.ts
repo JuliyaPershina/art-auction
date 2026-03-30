@@ -125,6 +125,7 @@ import { items } from '@/db/schema';
 import { knock } from './knock-server';
 import { eq } from 'drizzle-orm';
 import { env } from '@/env';
+import { formatToDollar } from '@/util/currency';
 
 export async function handleAuctionEnd(itemId: number) {
   const item = await database.query.items.findFirst({
@@ -178,7 +179,7 @@ export async function handleAuctionEnd(itemId: number) {
       type: 'auction-won', // ✅ NEW
       itemId,
       itemName,
-      amount: winnerBid.amount, // ✅ FIX (без форматування)
+      amount: formatToDollar(winnerBid.amount), // ✅ FIX (без форматування)
       url: itemUrl,
     },
   });
@@ -195,7 +196,7 @@ export async function handleAuctionEnd(itemId: number) {
         type: 'auction-won-admin', // ✅ NEW
         itemId,
         itemName,
-        amount: winnerBid.amount,
+        amount: formatToDollar(winnerBid.amount),
         winnerName: winnerBid.user.name ?? 'Anonymous',
         url: itemUrl,
       },

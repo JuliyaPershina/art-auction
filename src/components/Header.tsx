@@ -249,11 +249,11 @@ export function Header({ locale }: HeaderProps) {
                     return (
                       <NotificationCell {...props} item={item} key={item.id}>
                         <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
-                          <div className="flex-1">
+                          {/* <div className="flex-1">
                             <div className="text-gray-800 dark:text-gray-100 font-medium">
                               {title}
                             </div>
-                          </div>
+                          </div> */}
 
                           <Link
                             href={link}
@@ -531,11 +531,11 @@ export function Header({ locale }: HeaderProps) {
                                 key={item.id}
                               >
                                 <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
-                                  <div className="flex-1">
+                                  {/* <div className="flex-1">
                                     <div className="text-gray-800 dark:text-gray-100 font-medium">
                                       {title}
                                     </div>
-                                  </div>
+                                  </div> */}
 
                                   <Link
                                     href={link}
