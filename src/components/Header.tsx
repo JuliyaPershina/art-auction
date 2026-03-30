@@ -153,37 +153,92 @@ export function Header({ locale }: HeaderProps) {
                   //     </NotificationCell>
                   //   );
                   // }}
+                  // renderItem={({ item, ...props }) => {
+                  //   const data = item.data;
+
+                  //   if (!data) return null;
+
+                  //   let title = '';
+                  //   let subtitle = '';
+                  //   let link = '#';
+
+                  //   switch (data.type) {
+                  //     case 'auction-won':
+                  //       title = `🎉 You won "${data.itemName}"`;
+                  //       subtitle = `Final price: ${formatToDollar(data.amount)}`;
+                  //       link = data.url;
+                  //       break;
+
+                  //     case 'auction-won-admin':
+                  //       title = `🏁 Auction finished`;
+                  //       subtitle = `${data.winnerName} won "${data.itemName}" for ${formatToDollar(data.amount)}`;
+                  //       link = data.url;
+                  //       break;
+
+                  //     case 'outbid-in-app':
+                  //       title = `Someone outbid you on "${data.itemName}"`;
+                  //       subtitle = `New bid: ${formatToDollar(Number(data.amount))}`;
+                  //       link = `/${locale}/items/${data.itemId}`;
+                  //       break;
+
+                  //     case 'auction-lost':
+                  //       title = `Auction ended`;
+                  //       subtitle = `You did not win "${data.itemName}"`;
+                  //       link = `/${locale}/items/${data.itemId}`;
+                  //       break;
+
+                  //     default:
+                  //       title = 'Notification';
+                  //   }
+
+                  //   return (
+                  //     <NotificationCell {...props} item={item} key={item.id}>
+                  //       <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
+                  //         <div className="flex-1">
+                  //           <div className="text-gray-800 dark:text-gray-100 font-medium">
+                  //             {title}
+                  //           </div>
+                  //           <div className="text-sm text-gray-500 dark:text-gray-400">
+                  //             {subtitle}
+                  //           </div>
+                  //         </div>
+
+                  //         <Link
+                  //           href={link}
+                  //           onClick={() => setIsVisible(false)}
+                  //           className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline"
+                  //         >
+                  //           View →
+                  //         </Link>
+                  //       </div>
+                  //     </NotificationCell>
+                  //   );
+                  // }}
                   renderItem={({ item, ...props }) => {
                     const data = item.data;
-
                     if (!data) return null;
 
                     let title = '';
-                    let subtitle = '';
                     let link = '#';
 
                     switch (data.type) {
                       case 'auction-won':
-                        title = `🎉 You won "${data.itemName}"`;
-                        subtitle = `Final price: ${formatToDollar(data.amount)}`;
+                        title = `🎉 You won "${data.itemName}" for ${formatToDollar(data.amount)}`;
                         link = data.url;
                         break;
 
                       case 'auction-won-admin':
-                        title = `🏁 Auction finished`;
-                        subtitle = `${data.winnerName} won "${data.itemName}" for ${formatToDollar(data.amount)}`;
+                        title = `🏁 ${data.winnerName} won "${data.itemName}"`;
                         link = data.url;
                         break;
 
                       case 'outbid-in-app':
-                        title = `Someone outbid you on "${data.itemName}"`;
-                        subtitle = `New bid: ${formatToDollar(Number(data.amount))}`;
+                        title = `Someone outbid you on "${data.itemName}" (${formatToDollar(Number(data.amount))})`;
                         link = `/${locale}/items/${data.itemId}`;
                         break;
 
                       case 'auction-lost':
-                        title = `Auction ended`;
-                        subtitle = `You did not win "${data.itemName}"`;
+                        title = `Auction ended — you lost "${data.itemName}"`;
                         link = `/${locale}/items/${data.itemId}`;
                         break;
 
@@ -197,9 +252,6 @@ export function Header({ locale }: HeaderProps) {
                           <div className="flex-1">
                             <div className="text-gray-800 dark:text-gray-100 font-medium">
                               {title}
-                            </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                              {subtitle}
                             </div>
                           </div>
 
@@ -375,37 +427,96 @@ export function Header({ locale }: HeaderProps) {
                           //     </NotificationCell>
                           //   );
                           // }}
+                          // renderItem={({ item, ...props }) => {
+                          //   const data = item.data;
+
+                          //   if (!data) return null;
+
+                          //   let title = '';
+                          //   let subtitle = '';
+                          //   let link = '#';
+
+                          //   switch (data.type) {
+                          //     case 'auction-won':
+                          //       title = `🎉 You won "${data.itemName}"`;
+                          //       subtitle = `Final price: ${formatToDollar(data.amount)}`;
+                          //       link = data.url;
+                          //       break;
+
+                          //     case 'auction-won-admin':
+                          //       title = `🏁 Auction finished`;
+                          //       subtitle = `${data.winnerName} won "${data.itemName}" for ${formatToDollar(data.amount)}`;
+                          //       link = data.url;
+                          //       break;
+
+                          //     case 'outbid-in-app':
+                          //       title = `Someone outbid you on "${data.itemName}"`;
+                          //       subtitle = `New bid: ${formatToDollar(data.amount)}`;
+                          //       link = `/${locale}/items/${data.itemId}`;
+                          //       break;
+
+                          //     case 'auction-lost':
+                          //       title = `Auction ended`;
+                          //       subtitle = `You did not win "${data.itemName}"`;
+                          //       link = `/${locale}/items/${data.itemId}`;
+                          //       break;
+
+                          //     default:
+                          //       title = 'Notification';
+                          //   }
+
+                          //   return (
+                          //     <NotificationCell
+                          //       {...props}
+                          //       item={item}
+                          //       key={item.id}
+                          //     >
+                          //       <div className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-200 dark:border-gray-700">
+                          //         <div className="flex-1">
+                          //           <div className="text-gray-800 dark:text-gray-100 font-medium">
+                          //             {title}
+                          //           </div>
+                          //           <div className="text-sm text-gray-500 dark:text-gray-400">
+                          //             {subtitle}
+                          //           </div>
+                          //         </div>
+
+                          //         <Link
+                          //           href={link}
+                          //           onClick={() => setIsVisible(false)}
+                          //           className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline"
+                          //         >
+                          //           View →
+                          //         </Link>
+                          //       </div>
+                          //     </NotificationCell>
+                          //   );
+                          // }}
                           renderItem={({ item, ...props }) => {
                             const data = item.data;
-
                             if (!data) return null;
 
                             let title = '';
-                            let subtitle = '';
                             let link = '#';
 
                             switch (data.type) {
                               case 'auction-won':
-                                title = `🎉 You won "${data.itemName}"`;
-                                subtitle = `Final price: ${formatToDollar(data.amount)}`;
+                                title = `🎉 You won "${data.itemName}" for ${formatToDollar(data.amount)}`;
                                 link = data.url;
                                 break;
 
                               case 'auction-won-admin':
-                                title = `🏁 Auction finished`;
-                                subtitle = `${data.winnerName} won "${data.itemName}" for ${formatToDollar(data.amount)}`;
+                                title = `🏁 ${data.winnerName} won "${data.itemName}"`;
                                 link = data.url;
                                 break;
 
                               case 'outbid-in-app':
-                                title = `Someone outbid you on "${data.itemName}"`;
-                                subtitle = `New bid: ${formatToDollar(data.amount)}`;
+                                title = `Someone outbid you on "${data.itemName}" (${formatToDollar(Number(data.amount))})`;
                                 link = `/${locale}/items/${data.itemId}`;
                                 break;
 
                               case 'auction-lost':
-                                title = `Auction ended`;
-                                subtitle = `You did not win "${data.itemName}"`;
+                                title = `Auction ended — you lost "${data.itemName}"`;
                                 link = `/${locale}/items/${data.itemId}`;
                                 break;
 
@@ -423,9 +534,6 @@ export function Header({ locale }: HeaderProps) {
                                   <div className="flex-1">
                                     <div className="text-gray-800 dark:text-gray-100 font-medium">
                                       {title}
-                                    </div>
-                                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                                      {subtitle}
                                     </div>
                                   </div>
 
