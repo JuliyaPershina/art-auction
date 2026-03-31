@@ -16,6 +16,7 @@
     "@auth/drizzle-adapter": "^1.11.1",
     "@aws-sdk/client-s3": "^3.922.0",
     "@aws-sdk/s3-request-presigner": "^3.922.0",
+    "@formspree/react": "^3.0.0",
     "@knocklabs/node": "^1.21.0",
     "@knocklabs/react": "^0.9.2",
     "@knocklabs/typescript-config": "^0.0.2",
