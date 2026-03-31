@@ -224,10 +224,10 @@ export async function POST(req: Request) {
     }
 
     // 🛑 too fast submit
-    const diff = Date.now() - data.timestamp;
-    if (diff < 2000) {
-      return NextResponse.json({ error: 'Too fast' }, { status: 400 });
-    }
+    // const diff = Date.now() - data.timestamp;
+    // if (diff < 500) {
+    //   return NextResponse.json({ error: 'Too fast' }, { status: 400 });
+    // }
 
     const safe = {
       name: sanitize(data.name),
