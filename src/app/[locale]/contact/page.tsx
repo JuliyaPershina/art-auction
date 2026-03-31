@@ -209,6 +209,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
@@ -230,6 +231,26 @@ const ContactPage = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const t = {
+    title: locale === 'hu' ? 'Dolgozzunk együtt' : 'Let’s Work Together',
+    description:
+      locale === 'hu'
+        ? 'Ha együttműködés, egyedi műalkotás vagy vásárlás érdekli, írjon bátran. Szívesen egyeztetek ötletekről és lehetőségekről.'
+        : 'If you’re interested in collaborating, commissioning a custom artwork, or acquiring one of my existing pieces, feel free to reach out.',
+    getInTouch: locale === 'hu' ? 'Kapcsolat' : 'Get in Touch',
+    welcome:
+      locale === 'hu'
+        ? 'Örömmel várom üzenetét.'
+        : 'I welcome your message and look forward to hearing from you.',
+    contact: locale === 'hu' ? 'Kapcsolat' : 'Contact me',
+    name: locale === 'hu' ? 'Teljes név' : 'Your full name',
+    email: locale === 'hu' ? 'Email cím' : 'Your email address',
+    subject: locale === 'hu' ? 'Tárgy' : 'Subject',
+    message: locale === 'hu' ? 'Üzenet' : 'Your message',
+    send: locale === 'hu' ? 'Küldés' : 'Send message',
+    sending: locale === 'hu' ? 'Küldés...' : 'Sending...',
+  };
+
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrors({});
@@ -237,7 +258,7 @@ const ContactPage = () => {
 
     const formData = new FormData(e.currentTarget);
 
-    // ✅ FIX timestamp (генерується при submit)
+    // ✅ timestamp генерується при submit
     formData.set('timestamp', Date.now().toString());
 
     const rawData: FormDataType = {
@@ -285,46 +306,131 @@ const ContactPage = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* 🛑 honeypot */}
-      <input
-        type="text"
-        name="_gotcha"
-        style={{ display: 'none' }}
-        tabIndex={-1}
-        autoComplete="off"
-      />
+    <section className="w-full bg-gray-100 text-gray-700">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
 
-      {/* 🛑 timestamp */}
-      <input type="hidden" name="timestamp" />
+        {/* Intro */}
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-10 mb-8">
+          <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-stone-400 shadow-sm shrink-0">
+            <Image
+              src="/artist.jpg"
+              alt="Artist portrait"
+              fill
+              sizes="160px"
+              className="object-cover"
+              priority
+            />
+          </div>
 
-      <div>
-        <input name="name" placeholder="Name" />
-        {errors.name && <p className="text-red-500">{errors.name}</p>}
+          <div className="text-center md:text-left">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-800">
+              {t.title}
+            </h1>
+            <p className="text-base sm:text-lg leading-relaxed text-gray-600 max-w-2xl">
+              {t.description}
+            </p>
+          </div>
+        </div>
+
+        {/* Text */}
+        <div className="max-w-3xl mb-10">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+            {t.getInTouch}
+          </h2>
+          <p className="text-base sm:text-lg leading-relaxed text-gray-600">
+            {t.welcome}
+          </p>
+        </div>
       </div>
 
-      <div>
-        <input name="email" type="email" placeholder="Email" />
-        {errors.email && <p className="text-red-500">{errors.email}</p>}
+      {/* Form */}
+      <div className="max-w-3xl mb-6 mx-auto px-6 py-10 bg-white border border-stone-300 rounded-xl shadow-sm">
+        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-10 text-center">
+          {t.contact}
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* 🛑 honeypot */}
+          <input
+            type="text"
+            name="_gotcha"
+            style={{ display: 'none' }}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+
+          {/* 🛑 timestamp */}
+          <input type="hidden" name="timestamp" />
+
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {t.name}
+            </label>
+            <input
+              type="text"
+              name="name"
+              className="w-full px-4 py-3 border rounded-lg bg-gray-50"
+            />
+            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {t.email}
+            </label>
+            <input
+              type="email"
+              name="email"
+              className="w-full px-4 py-3 border rounded-lg bg-gray-50"
+            />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+          </div>
+
+          {/* Subject */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {t.subject}
+            </label>
+            <input
+              type="text"
+              name="subject"
+              className="w-full px-4 py-3 border rounded-lg bg-gray-50"
+            />
+            {errors.subject && <p className="text-red-500 text-sm">{errors.subject}</p>}
+          </div>
+
+          {/* Message */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {t.message}
+            </label>
+            <textarea
+              name="message"
+              rows={5}
+              className="w-full px-4 py-3 border rounded-lg bg-gray-50 resize-none"
+            />
+            {errors.message && <p className="text-red-500 text-sm">{errors.message}</p>}
+          </div>
+
+          {/* Global error */}
+          {errors.form && (
+            <p className="text-red-500 text-sm text-center">{errors.form}</p>
+          )}
+
+          {/* Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full border border-stone-500 py-3 rounded-lg font-medium transition text-stone-700 hover:bg-stone-700 hover:text-white disabled:opacity-50"
+          >
+            {loading ? t.sending : t.send}
+          </button>
+        </form>
       </div>
-
-      <div>
-        <input name="subject" placeholder="Subject" />
-        {errors.subject && <p className="text-red-500">{errors.subject}</p>}
-      </div>
-
-      <div>
-        <textarea name="message" />
-        {errors.message && <p className="text-red-500">{errors.message}</p>}
-      </div>
-
-      {/* ❗ global error */}
-      {errors.form && <p className="text-red-500 text-center">{errors.form}</p>}
-
-      <button type="submit" disabled={loading}>
-        {loading ? 'Sending...' : 'Send'}
-      </button>
-    </form>
+    </section>
   );
 };
 
