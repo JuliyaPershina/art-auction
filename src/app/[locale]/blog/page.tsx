@@ -11,7 +11,6 @@ import type { Metadata } from 'next';
 import { Pagination } from '@/components/Pagination';
 import { deleteBlogPostAction } from './blogs/[slug]/deleteBlogPostAction';
 
-
 const LIMIT = 2;
 
 export async function generateMetadata({
@@ -42,8 +41,7 @@ export default async function BlogPage({
 }: {
   params: Promise<{ locale: 'hu' | 'en' }>;
   searchParams: Promise<{ page?: string }>;
-  }) {
- 
+}) {
   const { locale } = await params;
   const sp = await searchParams;
   const session = await auth();
@@ -57,15 +55,28 @@ export default async function BlogPage({
   const isAdmin = session?.user?.role === 'admin';
 
   return (
-    <main className="space-y-10 px-6 pb-16">
+    <main className="relative z-0 space-y-10 px-6 pb-16">
       {/* HEADER */}
-      <div className="flex justify-between items-center pt-6">
+      {/* <div className="flex justify-between items-center pt-6">
         <h1 className={pageTitleStyles}>Blog</h1>
 
         {isAdmin && (
           <Button asChild>
             <Link href={`/${locale}/blog/blogs/create`}>Create Post</Link>
           </Button>
+        )}
+      </div> */}
+
+      <div className="flex justify-between items-center pt-6 relative z-20">
+        <h1 className={pageTitleStyles}>Blog</h1>
+
+        {isAdmin && (
+          <Link
+            href={`/${locale}/blog/blogs/create`}
+            className="inline-flex items-center px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800 transition"
+          >
+            Create Post
+          </Link>
         )}
       </div>
 
@@ -74,7 +85,6 @@ export default async function BlogPage({
         <p className="text-muted-foreground">No blog posts yet.</p>
       ) : (
         <div className="grid gap-8">
-
           <div className="grid gap-8">
             {posts.map((post) => {
               const coverImage =
@@ -94,7 +104,13 @@ export default async function BlogPage({
                         </Button>
                       </Link>
 
-                      <form action={deleteBlogPostAction.bind(null, post.id, locale)}>
+                      <form
+                        action={deleteBlogPostAction.bind(
+                          null,
+                          post.id,
+                          locale,
+                        )}
+                      >
                         <Button size="sm" variant="destructive">
                           Delete
                         </Button>

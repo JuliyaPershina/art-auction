@@ -1,183 +1,230 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 import { formatToDollar } from '@/util/currency';
 
-export default function AdminAuctionsUI({ bids, locale }: any) {
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
-  const [tab, setTab] = useState<'all' | 'won'>('all');
+export default function AdminAuctionsUI({
+  bids,
+  items,
+  locale,
+  bidsPage,
+  auctionsPage,
+  bidsSort,
+  auctionsSort,
+  status,
+}: any) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [tab, setTab] = useState<'bids' | 'winners' | 'auctions'>('bids');
+  const [selectedAuction, setSelectedAuction] = useState<number | null>(null);
 
   const now = new Date();
 
-  const t = {
-    title: locale === 'hu' ? 'Admin aukciók' : 'Admin Auctions',
-    search: locale === 'hu' ? 'Keresés...' : 'Search...',
-    all: locale === 'hu' ? 'Összes' : 'All',
-    won: locale === 'hu' ? 'Nyertesek' : 'Winners',
-    email: locale === 'hu' ? 'Email küldése' : 'Send Email',
-  };
+  // ======================
+  // 🔁 UPDATE QUERY PARAMS
+  // ======================
+  const updateParams = (params: Record<string, any>) => {
+    const sp = new URLSearchParams(searchParams.toString());
 
-  // 🔥 групування по юзеру
-  const grouped = useMemo(() => {
-    const map: any = {};
-
-    bids.forEach((bid: any) => {
-      if (!map[bid.user.id]) {
-        map[bid.user.id] = {
-          user: bid.user,
-          bids: [],
-        };
-      }
-      map[bid.user.id].bids.push(bid);
+    Object.entries(params).forEach(([key, value]) => {
+      sp.set(key, String(value));
     });
 
-    return Object.values(map);
-  }, [bids]);
+    router.push(`?${sp.toString()}`);
+  };
 
-  // 🔍 ФІЛЬТР + ПОШУК
-  const filtered = useMemo(() => {
-    return grouped
-      .map((group: any) => {
-        const filteredBids = group.bids.filter((bid: any) => {
-          const translation =
-            bid.item.translations.find(
-              (t: any) => t.languageCode === locale,
-            ) || bid.item.translations[0];
-
-          const name = translation?.name ?? '';
-
-          const isOver = new Date(bid.item.endDate) < now;
-          const isWinning = bid.amount === bid.item.currentBid;
-
-          // 🏆 тільки переможці
-          if (tab === 'won' && !(isOver && isWinning)) return false;
-
-          // 🔍 пошук
-          const query = search.toLowerCase();
-
-          return (
-            group.user.email.toLowerCase().includes(query) ||
-            group.user.name?.toLowerCase().includes(query) ||
-            name.toLowerCase().includes(query)
-          );
-        });
-
-        return {
-          ...group,
-          bids: filteredBids,
-        };
-      })
-      .filter((g: any) => g.bids.length > 0);
-  }, [grouped, search, tab, locale]);
+  // ======================
+  // TRANSLATIONS
+  // ======================
+  const t = {
+    bids: locale === 'hu' ? 'Licit' : 'Bids',
+    auctions: locale === 'hu' ? 'Aukciók' : 'Auctions',
+    winners: locale === 'hu' ? 'Nyertesek' : 'Winners',
+  };
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">{t.title}</h1>
-
-      {/* 🔍 Search + Tabs */}
-      <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-        <input
-          type="text"
-          placeholder={t.search}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border px-4 py-2 rounded-md w-full md:max-w-sm"
-        />
-
-        <div className="flex gap-2">
-          {(['all', 'won'] as const).map((key) => (
-            <button
-              key={key}
-              onClick={() => setTab(key)}
-              className={`px-4 py-2 rounded-full text-sm ${
-                tab === key
-                  ? 'bg-black text-white'
-                  : 'bg-gray-100 dark:bg-zinc-800'
-              }`}
-            >
-              {t[key]}
-            </button>
-          ))}
-        </div>
+      {/* ======================
+          TABS
+      ====================== */}
+      <div className="flex gap-2">
+        {(['bids', 'winners', 'auctions'] as const).map((key) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            className={`px-4 py-2 rounded ${
+              tab === key
+                ? 'bg-black text-white'
+                : 'bg-gray-100 dark:bg-zinc-800'
+            }`}
+          >
+            {t[key]}
+          </button>
+        ))}
       </div>
 
-      {/* USERS */}
-      {filtered.map((group: any) => (
-        <div
-          key={group.user.id}
-          className="border rounded-xl p-4 bg-white dark:bg-zinc-900"
-        >
-          {/* USER HEADER */}
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="font-semibold">{group.user.name}</p>
-              <p className="text-sm text-gray-500">
-                {group.user.email}
-              </p>
-            </div>
+      {/* ======================
+          SORT + FILTERS
+      ====================== */}
+      <div className="flex flex-wrap gap-3 items-center">
+        {/* SORT BIDS */}
+        {(tab === 'bids' || tab === 'winners') && (
+          <select
+            value={bidsSort}
+            onChange={(e) =>
+              updateParams({ bidsSort: e.target.value, bidsPage: 1 })
+            }
+            className="border px-3 py-2 rounded"
+          >
+            <option value="latest">Latest</option>
+            <option value="highest">Highest bid</option>
+          </select>
+        )}
 
-            <button
-              className="text-sm underline cursor-pointer hover:text-blue-500 transition"
-              onClick={() =>
-                setSelectedUser(
-                  selectedUser === group.user.id
-                    ? null
-                    : group.user.id,
-                )
+        {/* SORT AUCTIONS */}
+        {tab === 'auctions' && (
+          <>
+            <select
+              value={auctionsSort}
+              onChange={(e) =>
+                updateParams({
+                  auctionsSort: e.target.value,
+                  auctionsPage: 1,
+                })
               }
+              className="border px-3 py-2 rounded"
             >
-              {selectedUser === group.user.id ? 'Hide' : 'View'}
-            </button>
-          </div>
+              <option value="latest">Latest</option>
+              <option value="highest">Highest bid</option>
+            </select>
 
-          {/* BIDS */}
-          {selectedUser === group.user.id && (
-            <div className="mt-4 space-y-2">
-              {group.bids.map((bid: any) => {
-                const translation =
-                  bid.item.translations.find(
-                    (t: any) => t.languageCode === locale,
-                  ) || bid.item.translations[0];
+            <select
+              value={status}
+              onChange={(e) =>
+                updateParams({
+                  status: e.target.value,
+                  auctionsPage: 1,
+                })
+              }
+              className="border px-3 py-2 rounded"
+            >
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="ended">Ended</option>
+            </select>
+          </>
+        )}
+      </div>
 
-                const isOver =
-                  new Date(bid.item.endDate) < now;
+      {/* ======================
+          BIDS LIST
+      ====================== */}
+      {tab === 'bids' &&
+        bids.map((bid: any) => {
+          const translation =
+            bid.item.translations.find((t: any) => t.languageCode === locale) ||
+            bid.item.translations[0];
 
-                const isWinning =
-                  bid.amount === bid.item.currentBid;
+          return (
+            <div key={bid.id} className="border p-3 rounded">
+              <div className="flex justify-between">
+                <span>{translation?.name}</span>
+                <span>${formatToDollar(bid.amount)}</span>
+              </div>
+            </div>
+          );
+        })}
 
-                return (
-                  <div
-                    key={bid.id}
-                    className={`flex justify-between border-b pb-2 ${
-                      isOver && isWinning
-                        ? 'text-green-600 font-semibold'
-                        : ''
-                    }`}
-                  >
-                    <span>{translation?.name}</span>
+      {/* ======================
+          AUCTIONS LIST
+      ====================== */}
+      {tab === 'auctions' &&
+        items.map((item: any) => {
+          const translation =
+            item.translations.find((t: any) => t.languageCode === locale) ||
+            item.translations[0];
 
-                    <span>
-                      ${formatToDollar(bid.amount)}
-                      {isOver && isWinning && ' 🏆'}
-                    </span>
-                  </div>
-                );
-              })}
+          const isEnded = new Date(item.endDate) < now;
 
-              {/* EMAIL */}
+          return (
+            <div key={item.id} className="border p-4 rounded">
+              <div className="flex justify-between">
+                <span>{translation?.name}</span>
+                <span>{isEnded ? 'Ended' : 'Active'}</span>
+              </div>
+
               <button
-                className="mt-3 text-blue-500 underline"
+                className="text-sm underline mt-2"
                 onClick={() =>
-                  (window.location.href = `mailto:${group.user.email}`)
+                  setSelectedAuction(
+                    selectedAuction === item.id ? null : item.id,
+                  )
                 }
               >
-                {t.email}
+                View bids
               </button>
+
+              {selectedAuction === item.id && (
+                <div className="mt-3 space-y-2">
+                  {item.bids.map((bid: any) => (
+                    <div key={bid.id} className="flex justify-between">
+                      <span>{bid.user.email}</span>
+                      <span>${formatToDollar(bid.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      ))}
+          );
+        })}
+
+      {/* ======================
+          PAGINATION
+      ====================== */}
+      <div className="flex gap-2 pt-4">
+        {(tab === 'bids' || tab === 'winners') && (
+          <>
+            <button
+              onClick={() =>
+                updateParams({ bidsPage: Math.max(1, bidsPage - 1) })
+              }
+            >
+              Prev
+            </button>
+
+            <span>Page {bidsPage}</span>
+
+            <button onClick={() => updateParams({ bidsPage: bidsPage + 1 })}>
+              Next
+            </button>
+          </>
+        )}
+
+        {tab === 'auctions' && (
+          <>
+            <button
+              onClick={() =>
+                updateParams({
+                  auctionsPage: Math.max(1, auctionsPage - 1),
+                })
+              }
+            >
+              Prev
+            </button>
+
+            <span>Page {auctionsPage}</span>
+
+            <button
+              onClick={() => updateParams({ auctionsPage: auctionsPage + 1 })}
+            >
+              Next
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
+
