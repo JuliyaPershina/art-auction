@@ -101,10 +101,15 @@ export default function ItemCard({ item, index }: ItemCardProps) {
           {user && user.role === 'admin' && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive">{t.deleteLabel}</Button>
+                <Button
+                  variant="destructive"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {t.deleteLabel}
+                </Button>
               </AlertDialogTrigger>
 
-              <AlertDialogContent>
+              <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                 <AlertDialogHeader>
                   <AlertDialogTitle>{t.deleteConfirm}</AlertDialogTitle>
                 </AlertDialogHeader>
@@ -115,7 +120,8 @@ export default function ItemCard({ item, index }: ItemCardProps) {
                   </AlertDialogCancel>
 
                   <AlertDialogAction
-                    onClick={async () => {
+                    onClick={async (e) => {
+                      e.stopPropagation();
                       try {
                         const res = await fetch(`/api/items/${item.id}`, {
                           method: 'DELETE',
@@ -126,6 +132,7 @@ export default function ItemCard({ item, index }: ItemCardProps) {
                           throw new Error(data.error);
                         }
 
+                        router.push(`/${locale}/allAuctions`);
                         router.refresh();
                       } catch {
                         alert(t.deleteError);
