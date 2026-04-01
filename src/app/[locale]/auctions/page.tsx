@@ -50,7 +50,7 @@ export default async function MyBidsPage({
         <h1 className={pageTitleStyles}>{t.title}</h1>
 
         <Link
-          href={`/${locale}/auctions`}
+          href={`/${locale}/allAuctions`}
           className="text-sm text-gray-500 hover:underline"
         >
           ← {t.back}

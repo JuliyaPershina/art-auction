@@ -4,6 +4,7 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   basePath: string; // '/blog'
+  query?: Record<string, string | number | undefined>;
 }
 
 function generatePagination(current: number, total: number) {
@@ -38,10 +39,26 @@ function generatePagination(current: number, total: number) {
   return rangeWithDots;
 }
 
+function buildUrl(
+  basePath: string,
+  query: Record<string, string | number | undefined>,
+) {
+  const params = new URLSearchParams();
+
+  Object.entries(query).forEach(([key, value]) => {
+    if (value !== undefined) {
+      params.set(key, String(value));
+    }
+  });
+
+  return `${basePath}?${params.toString()}`;
+}
+
 export function Pagination({
   currentPage,
   totalPages,
   basePath,
+  query = {},
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
@@ -52,13 +69,11 @@ export function Pagination({
       {/* PREV */}
       {currentPage > 1 ? (
         <Link
-          href={
-            currentPage - 1 === 1
-              ? basePath
-              : `${basePath}?page=${currentPage - 1}`
-          }
-          rel="prev"
-          className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          href={buildUrl(basePath, {
+            ...query,
+            page: currentPage - 1 === 1 ? undefined : currentPage - 1,
+          })}
+          className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           ← Prev
         </Link>
@@ -69,13 +84,16 @@ export function Pagination({
       {/* NUMBERS */}
       {pages.map((p, index) =>
         p === '...' ? (
-          <span key={`dots-${index}`} className="px-4 py-2">
+          <span key={index} className="px-4 py-2">
             ...
           </span>
         ) : (
           <Link
             key={p}
-            href={p === 1 ? basePath : `${basePath}?page=${p}`}
+            href={buildUrl(basePath, {
+              ...query,
+              page: p === 1 ? undefined : p,
+            })}
             className={`px-4 py-2 border rounded-lg ${
               p === currentPage
                 ? 'bg-black text-white'
@@ -90,9 +108,11 @@ export function Pagination({
       {/* NEXT */}
       {currentPage < totalPages ? (
         <Link
-          href={`${basePath}?page=${currentPage + 1}`}
-          rel="next"
-          className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          href={buildUrl(basePath, {
+            ...query,
+            page: currentPage + 1,
+          })}
+          className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           Next →
         </Link>
@@ -102,3 +122,68 @@ export function Pagination({
     </div>
   );
 }
+
+// export function Pagination({
+//   currentPage,
+//   totalPages,
+//   basePath,
+// }: PaginationProps) {
+//   if (totalPages <= 1) return null;
+
+//   const pages = generatePagination(currentPage, totalPages);
+
+//   return (
+//     <div className="flex justify-center items-center gap-2 pt-12">
+//       {/* PREV */}
+//       {currentPage > 1 ? (
+//         <Link
+//           href={
+//             currentPage - 1 === 1
+//               ? basePath
+//               : `${basePath}?page=${currentPage - 1}`
+//           }
+//           rel="prev"
+//           className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+//         >
+//           ← Prev
+//         </Link>
+//       ) : (
+//         <span className="px-4 py-2 border rounded-lg opacity-40">← Prev</span>
+//       )}
+
+//       {/* NUMBERS */}
+//       {pages.map((p, index) =>
+//         p === '...' ? (
+//           <span key={`dots-${index}`} className="px-4 py-2">
+//             ...
+//           </span>
+//         ) : (
+//           <Link
+//             key={p}
+//             href={p === 1 ? basePath : `${basePath}?page=${p}`}
+//             className={`px-4 py-2 border rounded-lg ${
+//               p === currentPage
+//                 ? 'bg-black text-white'
+//                 : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+//             }`}
+//           >
+//             {p}
+//           </Link>
+//         ),
+//       )}
+
+//       {/* NEXT */}
+//       {currentPage < totalPages ? (
+//         <Link
+//           href={`${basePath}?page=${currentPage + 1}`}
+//           rel="next"
+//           className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+//         >
+//           Next →
+//         </Link>
+//       ) : (
+//         <span className="px-4 py-2 border rounded-lg opacity-40">Next →</span>
+//       )}
+//     </div>
+//   );
+// }
